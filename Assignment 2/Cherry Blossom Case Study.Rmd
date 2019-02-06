@@ -1,7 +1,7 @@
 ---
-title: "Cherry_Blossom_Code"
+title: "Cherry Blossom Case Study: Question 17"
 author: "Jason Lin, Cho Kim, Jonathan Marin"
-date: "January 30, 2019"
+date: "February 7, 2019"
 output: html_document
 ---
 
@@ -9,22 +9,19 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+### Introduction
+There is a lot of data available freely on the internet. For this case study, we will be practicing scraping data off of the Cherry Blossom Ten Mile Run in Washington D.C website to answer a question of our choice from the Nolan and Lang textbook. 
+<br>
 
-```{r code, include = FALSE}
+#### Question 17 (p.102 from textbook)
+In Section 2.7, we discovered that the *HTML* file for the male 2000 results was so poorly formatted that htmlParse() was unable to fix it to allow us to extract the text table from the \<pre\> tag. In this exercise, we programmatically edit this *HTML* file so that we can use htmlParse() as desired. To do this, begin by reading the *HTML* file located at http://www.cherryblossom.org/cb003m.htm using readLines(). Carefully examine the *HTML* displayed in Section 2.7 and come up with a plan for correcting it. Consider whether you want to drop *\<font\>*s or close them properly. Once you have fixed the problem so that the \<pre\> tag contains the text table, pass your corrected *HTML* to htmlParse(). You may want to use a text connection to do this rather than writing the file to disk and reading it in. 
 
-#Question 17
-#p.102
+### Background
+The Cherry Blossom Ten Mile Run is annually held in Washington D.C. in early April. The run began as a "training run for elite runners who were planning to compete in the Boston Marathon" [1] There were around 17,000 runners participating in the race as of 2012. The results of the race are published to http://www.cherryblossom.org/ every year. 
 
-#In Section 2.7, we discovered that the HTML file for the male 2000 results was so poorly formatted that htmlParse() #was unable to fix it to allow us to extract the text table from the <pre> tag. 
-
-#In this exercise, we programmatically #edit this HTML file so that we can use htmlParse() as desired. 
-#To do this, begin by reading the HTML file located at #http://www.cherryblossom.org/cb003m.htm using readLines().
-
-#Carefully examine the HTML displayed in Section 2.7 and #come up with a plan for correcting it. 
-#Consider whether you want to drop <font>s or close them properly. Once you have #fixed the problem so that the <pre> tag contains the text table, pass your corrected HTML to htmlParse(). You may want #to use a text connection to do this rather than writing the file to disk and reading it in.
-
-#(Page 102). 
-
+### Methods
+From page 94 in the textbook, we loaded the XML library and set our base url to `http://www.cherryblossom.org/`. For question 17, we are only interested in the year 2000 male results. In order to isolate the 2000 men's results, we used `results/2000/Cb003m.htm` in the paste function.
+```{r code1, echo = TRUE , include = TRUE}
 #p.94
 
 
@@ -40,7 +37,11 @@ url<-paste0(ubase, "results/2000/Cb003m.htm", sep = "")
 #Print the URL
 print(url)
 
+```
 
+We attempted to use the htmlParse function to see what would happen before we modified the nodes.
+
+```{r code2, include = TRUE, echo = TRUE}
 #Let's try to use htmlParse to see what happens before we do anything
 
 doc <- htmlParse(url)
@@ -48,7 +49,11 @@ doc <- htmlParse(url)
 preNode = getNodeSet(doc, "//pre")
 
 print(preNode)
+```
 
+
+
+```{r codeall, include = TRUE, echo = TRUE}
 
 #Read in the HTML
 data <- readLines(url)
@@ -64,7 +69,7 @@ data <- gsub("</font><font color=\"#800000\" face=\"Courier New\">", "", data)
 #Moving font before <pre><stron> and inserting a new line
 data <- gsub("<PRE><Strong>","</font><font color=\"#800000\" face=\"Courier New\">\n<PRE><Strong>", data)
 
-
+# could remove this part #
 data <- gsub("x", "", data)
 
 write.table(data, file = "table.htm", row.names = FALSE, quote = FALSE)
@@ -73,7 +78,7 @@ doc2 <- htmlParse("table.htm")
 
 preNode2 = getNodeSet(doc2, "//pre")
 
-preNode2
+head(preNode2)
 
 #preNode2 still looks a little funny with &#13 at the end, but we now have the data that we didn't have before
 #after looking this up, that appears to be a carriage return
@@ -83,4 +88,12 @@ preNode2
 
 
 ```
+
+
+### Results
+
+### Conclusions/Discussions
+
+### References
+1. Nolan, Deborah, and Duncan Temple Lang. Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving. Crc Press Inc., 2015.
 
