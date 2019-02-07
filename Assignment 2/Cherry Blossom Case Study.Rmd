@@ -1,8 +1,10 @@
 ---
-title: "Cherry Blossom Case Study: Question 17"
+title: 'Cherry Blossom Case Study: Question 17'
 author: "Jason Lin, Cho Kim, Jonathan Marin"
 date: "February 7, 2019"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -78,7 +80,6 @@ doc2 <- htmlParse("table.htm")
 
 preNode2 = getNodeSet(doc2, "//pre")
 
-head(preNode2)
 
 #preNode2 still looks a little funny with &#13 at the end, but we now have the data that we didn't have before
 #after looking this up, that appears to be a carriage return
@@ -97,6 +98,16 @@ The code above shows the process taken to rewrite the html file to pull from the
 
 There are many ways to rewrite the html file to allow for htmlparse to have the table to be pulled easier. Some ways as suggested by the book is to find another way to properly nest the headers to allow for "//pre" to not be empty or even deleting the "/font" header entirely. Our example of re-organizing headers is one possible way to pull data from the "//pre" header. By changing the header name, it is possible to have "//pre" not be an empty set. 
 
+
+
 ### References
 1. Nolan, Deborah, and Duncan Temple Lang. Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving. Crc Press Inc., 2015.
+
+
+###Results of the fix
+```{r results, include = TRUE, echo = TRUE}
+preNode2
+
+
+```
 

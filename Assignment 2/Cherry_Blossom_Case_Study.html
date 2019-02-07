@@ -97,6 +97,9 @@ img {
 button.code-folding-btn:focus {
   outline: none;
 }
+summary {
+  display: list-item;
+}
 </style>
 
 
@@ -104,14 +107,74 @@ button.code-folding-btn:focus {
 <div class="container-fluid main-container">
 
 <!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
 });
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
 </script>
 
 <!-- code folding -->
-
 
 
 
@@ -147,9 +210,9 @@ $(document).ready(function () {
 
 
 #Loading in the package
-library(XML)</code></pre>
-<pre><code>## Warning: package 'XML' was built under R version 3.5.2</code></pre>
-<pre class="r"><code>#This is the base url
+library(XML)
+
+#This is the base url
 ubase&lt;-&quot;http://www.cherryblossom.org/&quot;
 
 #This is the suffix url to get the 2000 year results
@@ -202,7 +265,27 @@ doc2 &lt;- htmlParse(&quot;table.htm&quot;)
 
 preNode2 = getNodeSet(doc2, &quot;//pre&quot;)
 
-head(preNode2)</code></pre>
+
+#preNode2 still looks a little funny with &amp;#13 at the end, but we now have the data that we didn't have before
+#after looking this up, that appears to be a carriage return</code></pre>
+</div>
+<div id="results" class="section level3">
+<h3>Results</h3>
+<p>The code above shows the process taken to rewrite the html file to pull from the “//pre” designation. By removing “font and font color”&quot; header and subbing “font and font color PRE Strong”&quot; header for “PRE Strong”, allows htmlparse() to parse the html file with the “//pre” header. Therefore, once htmlparse is passed through getNodeSet is able to pull fromm “//pre” to obtain the year 2000 Cherry Blossom Ten Mile data.</p>
+</div>
+<div id="conclusionsdiscussions" class="section level3">
+<h3>Conclusions/Discussions</h3>
+<p>There are many ways to rewrite the html file to allow for htmlparse to have the table to be pulled easier. Some ways as suggested by the book is to find another way to properly nest the headers to allow for “//pre” to not be empty or even deleting the “/font” header entirely. Our example of re-organizing headers is one possible way to pull data from the “//pre” header. By changing the header name, it is possible to have “//pre” not be an empty set.</p>
+</div>
+<div id="references" class="section level3">
+<h3>References</h3>
+<ol style="list-style-type: decimal">
+<li>Nolan, Deborah, and Duncan Temple Lang. Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving. Crc Press Inc., 2015.</li>
+</ol>
+</div>
+<div id="results-of-the-fix" class="section level3">
+<h3>Results of the fix</h3>
+<pre class="r"><code>preNode2</code></pre>
 <pre><code>## [[1]]
 ## &lt;pre&gt;
 ##   &lt;strong&gt;&amp;#13;
@@ -3225,23 +3308,10 @@ head(preNode2)</code></pre>
 ##  3015  189/189   5010 Robert Deck           56 York PA            2:24:25  2:24:25 &amp;#13;
 ##  3016    5/5     1218 Henry Heymann         79 Washington DC      2:35:11  2:35:11 &amp;#13;
 ## # Under USATF OPEN guideline    * Under USATF Age-Group guideline&lt;/strong&gt;
-## &lt;/pre&gt;</code></pre>
-<pre class="r"><code>#preNode2 still looks a little funny with &amp;#13 at the end, but we now have the data that we didn't have before
-#after looking this up, that appears to be a carriage return</code></pre>
-</div>
-<div id="results" class="section level3">
-<h3>Results</h3>
-<p>The code above shows the process taken to rewrite the html file to pull from the “//pre” designation. By removing “font and font color”&quot; header and subbing “font and font color PRE Strong”&quot; header for “PRE Strong”, allows htmlparse() to parse the html file with the “//pre” header. Therefore, once htmlparse is passed through getNodeSet is able to pull fromm “//pre” to obtain the year 2000 Cherry Blossom Ten Mile data.</p>
-</div>
-<div id="conclusionsdiscussions" class="section level3">
-<h3>Conclusions/Discussions</h3>
-<p>There are many ways to rewrite the html file to allow for htmlparse to have the table to be pulled easier. Some ways as suggested by the book is to find another way to properly nest the headers to allow for “//pre” to not be empty or even deleting the “/font” header entirely. Our example of re-organizing headers is one possible way to pull data from the “//pre” header. By changing the header name, it is possible to have “//pre” not be an empty set.</p>
-</div>
-<div id="references" class="section level3">
-<h3>References</h3>
-<ol style="list-style-type: decimal">
-<li>Nolan, Deborah, and Duncan Temple Lang. Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving. Crc Press Inc., 2015.</li>
-</ol>
+## &lt;/pre&gt; 
+## 
+## attr(,&quot;class&quot;)
+## [1] &quot;XMLNodeSet&quot;</code></pre>
 </div>
 
 
