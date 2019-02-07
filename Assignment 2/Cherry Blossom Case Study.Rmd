@@ -39,7 +39,7 @@ print(url)
 
 ```
 
-We attempted to use the htmlParse function to see what would happen before we modified the nodes.
+### We attempted to use the htmlParse function to see what would happen before we modified the nodes.
 
 ```{r code2, include = TRUE, echo = TRUE}
 #Let's try to use htmlParse to see what happens before we do anything
@@ -51,7 +51,7 @@ preNode = getNodeSet(doc, "//pre")
 print(preNode)
 ```
 
-
+### Figure 1. Results of Modifying the Html File to pull from "//Pre"
 
 ```{r codeall, include = TRUE, echo = TRUE}
 
@@ -91,8 +91,11 @@ head(preNode2)
 
 
 ### Results
+The code above shows the process taken to rewrite the html file to pull from the "//pre" designation. By removing "font and font color"" header and subbing "font and font color PRE Strong"" header for "PRE Strong", allows htmlparse() to parse the html file with the  "//pre" header. Therefore, once htmlparse is passed through getNodeSet is able to pull fromm "//pre" to obtain the year 2000 Cherry Blossom Ten Mile data. 
 
 ### Conclusions/Discussions
+
+There are many ways to rewrite the html file to allow for htmlparse to have the table to be pulled easier. Some ways as suggested by the book is to find another way to properly nest the headers to allow for "//pre" to not be empty or even deleting the "/font" header entirely. Our example of re-organizing headers is one possible way to pull data from the "//pre" header. By changing the header name, it is possible to have "//pre" not be an empty set. 
 
 ### References
 1. Nolan, Deborah, and Duncan Temple Lang. Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving. Crc Press Inc., 2015.
