@@ -1,0 +1,158 @@
+---
+title: "Spam Case Study: Question 19"
+author: "Jason Lin, Cho Kim, Jonathan Marin"
+date: "February 20, 2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Introduction
+For this case study, we will be evaluating classified emails from SpamAssasin (http://spamassassin.apache.org) and attempting to create spam filters. We chose to answer question 19 from the Nolan and Lang textbook.
+<br>
+
+#### Question 19 (p.168 from textbook)
+Consider the other parameters that can be used to control the recursive partitioning process. Read the documentation for them in the `rpart.control()` documentation. Also, carry out an Internet search for more information on how to tweak the `rpart()` tuning parameters. Experiment with values for these parameters. Do the trees that result make sense with your understnading of how the parameters are used? Can you improve the prediction using them?
+
+### Background
+The rpart documentation available on https://cran.r-project.org/web/packages/rpart/index.html states that the package is for "recursive partitioning for classification, regression and survival trees." [2]
+
+### Methods
+From page 110 in the textbook, we used R to check the directory of the `SpamAssassinMessages` directory. We list the folder names within the directory and list the file names within the `spam_2` folder. The `length()` function tells us that there are 9,353 messages altogether from the different directories. We also printed the count of messages within each folder. 
+```{r code1, echo = TRUE , include = TRUE}
+# set cho's wd
+#setwd("Documents/4-Spring19/QTW/QTW-Assignments/Assignment 3")
+#spamPath = "/Users/nolan/RPackages/RSpamData"spamPath = "."
+spamPath = "./SpamAssassinMessages/"
+#list.dirs(spamPath, full.names = FALSE)
+
+# list folder names
+list.files(path = paste(spamPath, sep = .Platform$file.sep))
+
+# print header of spam_2 contents
+head(list.files(path = paste(spamPath, "spam_2",
+                             sep = .Platform$file.sep)))
+# establish directory names for each folder
+dirNames = list.files(path = paste(spamPath, 
+                      sep = .Platform$file.sep))
+
+# count number of files in all folders
+length(list.files(paste(spamPath, dirNames, 
+                        sep = .Platform$file.sep)))
+
+# count number of files in each subdirectory
+sapply(paste(spamPath, dirNames, 
+             sep = .Platform$file.sep), 
+       function(dir) length(list.files(dir)) )
+
+# define var fullDirNames for each folder
+fullDirNames = paste(spamPath, dirNames, 
+                     sep = .Platform$file.sep)
+
+```
+
+In the code below, we obtain the full path of the files in the first directory `easy_ham`, and read the first message in the `easy_ham` folder. From the textbook, 15 ham message files were selected by manual inspection and read into R (see `indx` varible). Then, we split the header from the body of the message using a custom function from the textbook. 
+
+```{r code2, echo = TRUE , include = TRUE}
+# obtain full bnames of files within first directory, easy_ham 
+fileNames = list.files(fullDirNames[1], full.names = TRUE)
+fileNames[1]
+
+# read first message in easy_ham
+msg = readLines(fileNames[1])
+head(msg)
+
+# 15 ham messages chosen by manual inspection from textbook,
+# shows different characteristics of email
+indx = c(1:5, 15, 27, 68, 69, 329, 404, 427, 516, 852, 971)
+fn = list.files(fullDirNames[1], full.names = TRUE)[indx]
+sampleEmail = sapply(fn, readLines)        
+
+# find index of first empty line
+msg = sampleEmail[[1]]
+which(msg == "")[1]
+
+# alternative way to find index of empty line
+match("", msg)
+
+# assign location of index to splitPoint
+splitPoint = match("", msg)
+
+# confirm the split is correct by looking at email before and after split location
+msg[ (splitPoint - 2):(splitPoint + 6) ]
+
+# define header, body in relation to splitPoint
+header = msg[1:(splitPoint-1)]
+body = msg[ -(1:splitPoint) ]
+
+# create function to split each message into header and body
+splitMessage = function(msg) {
+  splitPoint = match("", msg)
+  header = msg[1:(splitPoint-1)]
+  body = msg[ -(1:splitPoint) ]
+  return(list(header = header, body = body))
+}
+
+# apply function
+sampleSplit = lapply(sampleEmail, splitMessage)
+```
+```{r code3, echo = TRUE , include = TRUE}
+# view first message in sample
+header = sampleSplit[[1]]$header
+# locate Content-Type key in header
+grep("Content-Type", header)
+
+# use Content-Type key from grep above to check if message has attachments
+grep("multi", tolower(header[46]))
+
+# double check above
+header[46]
+
+# apply grep to all headers in list of messages
+### print of CTloc doesn't match p.118 in the book.. wtf?! ###
+headerList = lapply(sampleSplit, function(msg) msg$header)
+CTloc = sapply(headerList, grep, pattern = "Content-Type")
+CTloc
+
+# look for missing Content-Type field and return NA so we have vector
+test = sapply(headerList, function(header) {
+                       CTloc = grep("Content-Type", header)
+                       if (length(CTloc) == 0) return(NA)
+                       CTloc
+                   })
+# check for multipart MIME type
+hasAttach = sapply(headerList, function(header) {
+  CTloc = grep("Content-Type", header)
+  if (length(CTloc) == 0) return(FALSE)
+  grepl("multi", tolower(header[CTloc])) 
+})
+
+hasAttach
+
+header = sampleSplit[[6]]$header
+boundaryIdx = grep("boundary=", header)
+header[boundaryIdx]
+
+sub(".*boundary=\"(.*)\";.*", "\\1", header[boundaryIdx])
+
+header2 = headerList[[9]]
+boundaryIdx2 = grep("boundary=", header2)
+header2[boundaryIdx2]
+```
+
+
+### Results
+
+
+### Conclusions/Discussions
+
+
+### References
+1. Nolan, Deborah, and Duncan Temple Lang. Data Science in R: A Case Studies Approach to Computational Reasoning and Problem Solving. Crc Press Inc., 2015.
+2. Terry Therneau and Beth Atkinson (2018). rpart: Recursive Partitioning and
+  Regression Trees. R package version 4.1-13.
+  https://CRAN.R-project.org/package=rpart
