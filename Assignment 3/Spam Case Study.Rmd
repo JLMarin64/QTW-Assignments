@@ -31,26 +31,27 @@ spamPath = "./SpamAssassinMessages/"
 #list.dirs(spamPath, full.names = FALSE)
 
 # list folder names
-list.files(path = paste(spamPath, sep = .Platform$file.sep))
+list.files(path = paste(spamPath, "messages", 
+                        sep = .Platform$file.sep))
 
 # print header of spam_2 contents
-head(list.files(path = paste(spamPath, "spam_2",
+head(list.files(path = paste(spamPath, "messages", "spam_2",
                              sep = .Platform$file.sep)))
 # establish directory names for each folder
-dirNames = list.files(path = paste(spamPath, 
+dirNames = list.files(path = paste(spamPath, "messages", 
                       sep = .Platform$file.sep))
 
 # count number of files in all folders
-length(list.files(paste(spamPath, dirNames, 
+length(list.files(paste(spamPath, "messages", dirNames, 
                         sep = .Platform$file.sep)))
 
 # count number of files in each subdirectory
-sapply(paste(spamPath, dirNames, 
+sapply(paste(spamPath, "messages", dirNames, 
              sep = .Platform$file.sep), 
        function(dir) length(list.files(dir)) )
 
 # define var fullDirNames for each folder
-fullDirNames = paste(spamPath, dirNames, 
+fullDirNames = paste(spamPath, "messages", dirNames, 
                      sep = .Platform$file.sep)
 
 ```
@@ -61,6 +62,7 @@ In the code below, we obtain the full path of the files in the first directory `
 # obtain full bnames of files within first directory, easy_ham 
 fileNames = list.files(fullDirNames[1], full.names = TRUE)
 fileNames[1]
+
 
 # read first message in easy_ham
 msg = readLines(fileNames[1])
@@ -114,6 +116,7 @@ header[46]
 
 # apply grep to all headers in list of messages
 ### print of CTloc doesn't match p.118 in the book.. wtf?! ###
+
 headerList = lapply(sampleSplit, function(msg) msg$header)
 CTloc = sapply(headerList, grep, pattern = "Content-Type")
 CTloc
