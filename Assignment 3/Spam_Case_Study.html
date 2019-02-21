@@ -98,9 +98,6 @@ img {
 button.code-folding-btn:focus {
   outline: none;
 }
-summary {
-  display: list-item;
-}
 </style>
 
 
@@ -108,74 +105,14 @@ summary {
 <div class="container-fluid main-container">
 
 <!-- tabsets -->
-
-<style type="text/css">
-.tabset-dropdown > .nav-tabs {
-  display: inline-table;
-  max-height: 500px;
-  min-height: 44px;
-  overflow-y: auto;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
-  font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
-  font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-}
-
-.tabset-dropdown > .nav-tabs > li.active {
-  display: block;
-}
-
-.tabset-dropdown > .nav-tabs > li > a,
-.tabset-dropdown > .nav-tabs > li > a:focus,
-.tabset-dropdown > .nav-tabs > li > a:hover {
-  border: none;
-  display: inline-block;
-  border-radius: 4px;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
-  display: block;
-  float: none;
-}
-
-.tabset-dropdown > .nav-tabs > li {
-  display: none;
-}
-</style>
-
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
 });
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
-});
 </script>
 
 <!-- code folding -->
+
 
 
 
@@ -197,7 +134,7 @@ $(document).ready(function () {
 <p>For this case study, we will be evaluating classified emails from SpamAssasin (<a href="http://spamassassin.apache.org" class="uri">http://spamassassin.apache.org</a>) and attempting to create spam filters. We chose to answer question 19 from the Nolan and Lang textbook. <br></p>
 <div id="question-19-p.168-from-textbook" class="section level4">
 <h4>Question 19 (p.168 from textbook)</h4>
-<p>Consider the other parameters that can be used to control the recursive partitioning process. Read the documentation for them in the <code>rpart.control()</code> documentation. Also, carry out an Internet search for more information on how to tweak the <code>rpart()</code> tuning parameters. Experiment with values for these parameters. Do the trees that result make sense with your understnading of how the parameters are used? Can you improve the prediction using them?</p>
+<p>Consider the other parameters that can be used to control the recursive partitioning process. Read the documentation for them in the <code>rpart.control()</code> documentation. Also, carry out an Internet search for more information on how to tweak the <code>rpart()</code> tuning parameters. Experiment with values for these parameters. Do the trees that result make sense with your understanding of how the parameters are used? Can you improve the prediction using them?</p>
 </div>
 </div>
 <div id="background" class="section level3">
@@ -214,10 +151,11 @@ spamPath = &quot;./SpamAssassinMessages/&quot;
 #list.dirs(spamPath, full.names = FALSE)
 
 # list folder names
-list.files(path = paste(spamPath, sep = .Platform$file.sep))</code></pre>
+list.files(path = paste(spamPath, &quot;messages&quot;, 
+                        sep = .Platform$file.sep))</code></pre>
 <pre><code>## [1] &quot;easy_ham&quot;   &quot;easy_ham_2&quot; &quot;hard_ham&quot;   &quot;spam&quot;       &quot;spam_2&quot;</code></pre>
 <pre class="r"><code># print header of spam_2 contents
-head(list.files(path = paste(spamPath, &quot;spam_2&quot;,
+head(list.files(path = paste(spamPath, &quot;messages&quot;, &quot;spam_2&quot;,
                              sep = .Platform$file.sep)))</code></pre>
 <pre><code>## [1] &quot;00001.317e78fa8ee2f54cd4890fdc09ba8176&quot;
 ## [2] &quot;00002.9438920e9a55591b18e60d1ed37d992b&quot;
@@ -226,38 +164,42 @@ head(list.files(path = paste(spamPath, &quot;spam_2&quot;,
 ## [5] &quot;00005.ed0aba4d386c5e62bc737cf3f0ed9589&quot;
 ## [6] &quot;00006.3ca1f399ccda5d897fecb8c57669a283&quot;</code></pre>
 <pre class="r"><code># establish directory names for each folder
-dirNames = list.files(path = paste(spamPath, 
+dirNames = list.files(path = paste(spamPath, &quot;messages&quot;, 
                       sep = .Platform$file.sep))
 
 # count number of files in all folders
-length(list.files(paste(spamPath, dirNames, 
+length(list.files(paste(spamPath, &quot;messages&quot;, dirNames, 
                         sep = .Platform$file.sep)))</code></pre>
 <pre><code>## [1] 9353</code></pre>
 <pre class="r"><code># count number of files in each subdirectory
-sapply(paste(spamPath, dirNames, 
+sapply(paste(spamPath, &quot;messages&quot;, dirNames, 
              sep = .Platform$file.sep), 
        function(dir) length(list.files(dir)) )</code></pre>
-<pre><code>##   ./SpamAssassinMessages//easy_ham ./SpamAssassinMessages//easy_ham_2 
-##                               5052                               1401 
-##   ./SpamAssassinMessages//hard_ham       ./SpamAssassinMessages//spam 
-##                                501                               1001 
-##     ./SpamAssassinMessages//spam_2 
-##                               1398</code></pre>
+<pre><code>##   ./SpamAssassinMessages//messages/easy_ham 
+##                                        5052 
+## ./SpamAssassinMessages//messages/easy_ham_2 
+##                                        1401 
+##   ./SpamAssassinMessages//messages/hard_ham 
+##                                         501 
+##       ./SpamAssassinMessages//messages/spam 
+##                                        1001 
+##     ./SpamAssassinMessages//messages/spam_2 
+##                                        1398</code></pre>
 <pre class="r"><code># define var fullDirNames for each folder
-fullDirNames = paste(spamPath, dirNames, 
+fullDirNames = paste(spamPath, &quot;messages&quot;, dirNames, 
                      sep = .Platform$file.sep)</code></pre>
 <p>In the code below, we obtain the full path of the files in the first directory <code>easy_ham</code>, and read the first message in the <code>easy_ham</code> folder. From the textbook, 15 ham message files were selected by manual inspection and read into R (see <code>indx</code> varible). Then, we split the header from the body of the message using a custom function from the textbook.</p>
 <pre class="r"><code># obtain full bnames of files within first directory, easy_ham 
 fileNames = list.files(fullDirNames[1], full.names = TRUE)
 fileNames[1]</code></pre>
-<pre><code>## [1] &quot;./SpamAssassinMessages//easy_ham/00001.7c53336b37003a9286aba55d2945844c&quot;</code></pre>
+<pre><code>## [1] &quot;./SpamAssassinMessages//messages/easy_ham/00001.7c53336b37003a9286aba55d2945844c&quot;</code></pre>
 <pre class="r"><code># read first message in easy_ham
 msg = readLines(fileNames[1])
 head(msg)</code></pre>
-<pre><code>## [1] &quot;From exmh-workers-admin@redhat.com  Thu Aug 22 12:36:23 2002&quot;      
-## [2] &quot;Return-Path: &lt;exmh-workers-admin@spamassassin.taint.org&gt;&quot;          
-## [3] &quot;Delivered-To: zzzz@localhost.netnoteinc.com&quot;                       
-## [4] &quot;Received: from localhost (localhost [127.0.0.1])&quot;                  
+<pre><code>## [1] &quot;From exmh-workers-admin@redhat.com  Thu Aug 22 12:36:23 2002&quot;     
+## [2] &quot;Return-Path: &lt;exmh-workers-admin@spamassassin.taint.org&gt;&quot;         
+## [3] &quot;Delivered-To: zzzz@localhost.netnoteinc.com&quot;                      
+## [4] &quot;Received: from localhost (localhost [127.0.0.1])&quot;                 
 ## [5] &quot;\tby phobos.labs.netnoteinc.com (Postfix) with ESMTP id D03E543C36&quot;
 ## [6] &quot;\tfor &lt;zzzz@localhost&gt;; Thu, 22 Aug 2002 07:36:16 -0400 (EDT)&quot;</code></pre>
 <pre class="r"><code># 15 ham messages chosen by manual inspection from textbook,
@@ -314,52 +256,53 @@ header[46]</code></pre>
 <pre><code>## [1] &quot;Content-Type: text/plain; charset=us-ascii&quot;</code></pre>
 <pre class="r"><code># apply grep to all headers in list of messages
 ### print of CTloc doesn't match p.118 in the book.. wtf?! ###
+
 headerList = lapply(sampleSplit, function(msg) msg$header)
 CTloc = sapply(headerList, grep, pattern = &quot;Content-Type&quot;)
 CTloc</code></pre>
-<pre><code>## $`./SpamAssassinMessages//easy_ham/00001.7c53336b37003a9286aba55d2945844c`
+<pre><code>## $`./SpamAssassinMessages//messages/easy_ham/00001.7c53336b37003a9286aba55d2945844c`
 ## [1] 46
 ## 
-## $`./SpamAssassinMessages//easy_ham/00002.9c4069e25e1ef370c078db7ee85ff9ac`
+## $`./SpamAssassinMessages//messages/easy_ham/00002.9c4069e25e1ef370c078db7ee85ff9ac`
 ## [1] 45
 ## 
-## $`./SpamAssassinMessages//easy_ham/00003.860e3c3cee1b42ead714c5c874fe25f7`
+## $`./SpamAssassinMessages//messages/easy_ham/00003.860e3c3cee1b42ead714c5c874fe25f7`
 ## [1] 42
 ## 
-## $`./SpamAssassinMessages//easy_ham/00004.864220c5b6930b209cc287c361c99af1`
+## $`./SpamAssassinMessages//messages/easy_ham/00004.864220c5b6930b209cc287c361c99af1`
 ## [1] 30
 ## 
-## $`./SpamAssassinMessages//easy_ham/00005.bf27cdeaf0b8c4647ecd61b1d09da613`
+## $`./SpamAssassinMessages//messages/easy_ham/00005.bf27cdeaf0b8c4647ecd61b1d09da613`
 ## [1] 44
 ## 
-## $`./SpamAssassinMessages//easy_ham/00014.cb20e10b2bfcb8210a1c310798532a57`
+## $`./SpamAssassinMessages//messages/easy_ham/00014.cb20e10b2bfcb8210a1c310798532a57`
 ## [1] 54
 ## 
-## $`./SpamAssassinMessages//easy_ham/00025.d685245bdc4444f44fa091e6620b20b3`
+## $`./SpamAssassinMessages//messages/easy_ham/00025.d685245bdc4444f44fa091e6620b20b3`
 ## integer(0)
 ## 
-## $`./SpamAssassinMessages//easy_ham/00062.009f5a1a8fa88f0b38299ad01562bb37`
+## $`./SpamAssassinMessages//messages/easy_ham/00062.009f5a1a8fa88f0b38299ad01562bb37`
 ## [1] 21
 ## 
-## $`./SpamAssassinMessages//easy_ham/00063.0acbc484a73f0e0b727e06c100d8df7b`
+## $`./SpamAssassinMessages//messages/easy_ham/00063.0acbc484a73f0e0b727e06c100d8df7b`
 ## [1] 17
 ## 
-## $`./SpamAssassinMessages//easy_ham/0030.77828e31de08ebb58b583688b87524cc`
+## $`./SpamAssassinMessages//messages/easy_ham/0030.77828e31de08ebb58b583688b87524cc`
 ## [1] 52
 ## 
-## $`./SpamAssassinMessages//easy_ham/00368.f86324a03e7ae7070cc40f302385f5d3`
+## $`./SpamAssassinMessages//messages/easy_ham/00368.f86324a03e7ae7070cc40f302385f5d3`
 ## [1] 31
 ## 
-## $`./SpamAssassinMessages//easy_ham/00389.8606961eaeef7b921ce1c53773248d69`
+## $`./SpamAssassinMessages//messages/easy_ham/00389.8606961eaeef7b921ce1c53773248d69`
 ## [1] 52
 ## 
-## $`./SpamAssassinMessages//easy_ham/0047.5c3e049737a2813d4ac6f13f02362fb1`
+## $`./SpamAssassinMessages//messages/easy_ham/0047.5c3e049737a2813d4ac6f13f02362fb1`
 ## [1] 52
 ## 
-## $`./SpamAssassinMessages//easy_ham/00775.0e012f373467846510d9db297e99a008`
+## $`./SpamAssassinMessages//messages/easy_ham/00775.0e012f373467846510d9db297e99a008`
 ## [1] 27
 ## 
-## $`./SpamAssassinMessages//easy_ham/00883.c44a035e7589e83076b7f1fed8fa97d5`
+## $`./SpamAssassinMessages//messages/easy_ham/00883.c44a035e7589e83076b7f1fed8fa97d5`
 ## [1] 31</code></pre>
 <pre class="r"><code># look for missing Content-Type field and return NA so we have vector
 test = sapply(headerList, function(header) {
@@ -375,36 +318,36 @@ hasAttach = sapply(headerList, function(header) {
 })
 
 hasAttach</code></pre>
-<pre><code>## ./SpamAssassinMessages//easy_ham/00001.7c53336b37003a9286aba55d2945844c 
-##                                                                   FALSE 
-## ./SpamAssassinMessages//easy_ham/00002.9c4069e25e1ef370c078db7ee85ff9ac 
-##                                                                   FALSE 
-## ./SpamAssassinMessages//easy_ham/00003.860e3c3cee1b42ead714c5c874fe25f7 
-##                                                                   FALSE 
-## ./SpamAssassinMessages//easy_ham/00004.864220c5b6930b209cc287c361c99af1 
-##                                                                   FALSE 
-## ./SpamAssassinMessages//easy_ham/00005.bf27cdeaf0b8c4647ecd61b1d09da613 
-##                                                                   FALSE 
-## ./SpamAssassinMessages//easy_ham/00014.cb20e10b2bfcb8210a1c310798532a57 
-##                                                                    TRUE 
-## ./SpamAssassinMessages//easy_ham/00025.d685245bdc4444f44fa091e6620b20b3 
-##                                                                   FALSE 
-## ./SpamAssassinMessages//easy_ham/00062.009f5a1a8fa88f0b38299ad01562bb37 
-##                                                                    TRUE 
-## ./SpamAssassinMessages//easy_ham/00063.0acbc484a73f0e0b727e06c100d8df7b 
-##                                                                    TRUE 
-##  ./SpamAssassinMessages//easy_ham/0030.77828e31de08ebb58b583688b87524cc 
-##                                                                    TRUE 
-## ./SpamAssassinMessages//easy_ham/00368.f86324a03e7ae7070cc40f302385f5d3 
-##                                                                    TRUE 
-## ./SpamAssassinMessages//easy_ham/00389.8606961eaeef7b921ce1c53773248d69 
-##                                                                    TRUE 
-##  ./SpamAssassinMessages//easy_ham/0047.5c3e049737a2813d4ac6f13f02362fb1 
-##                                                                    TRUE 
-## ./SpamAssassinMessages//easy_ham/00775.0e012f373467846510d9db297e99a008 
-##                                                                    TRUE 
-## ./SpamAssassinMessages//easy_ham/00883.c44a035e7589e83076b7f1fed8fa97d5 
-##                                                                    TRUE</code></pre>
+<pre><code>## ./SpamAssassinMessages//messages/easy_ham/00001.7c53336b37003a9286aba55d2945844c 
+##                                                                            FALSE 
+## ./SpamAssassinMessages//messages/easy_ham/00002.9c4069e25e1ef370c078db7ee85ff9ac 
+##                                                                            FALSE 
+## ./SpamAssassinMessages//messages/easy_ham/00003.860e3c3cee1b42ead714c5c874fe25f7 
+##                                                                            FALSE 
+## ./SpamAssassinMessages//messages/easy_ham/00004.864220c5b6930b209cc287c361c99af1 
+##                                                                            FALSE 
+## ./SpamAssassinMessages//messages/easy_ham/00005.bf27cdeaf0b8c4647ecd61b1d09da613 
+##                                                                            FALSE 
+## ./SpamAssassinMessages//messages/easy_ham/00014.cb20e10b2bfcb8210a1c310798532a57 
+##                                                                             TRUE 
+## ./SpamAssassinMessages//messages/easy_ham/00025.d685245bdc4444f44fa091e6620b20b3 
+##                                                                            FALSE 
+## ./SpamAssassinMessages//messages/easy_ham/00062.009f5a1a8fa88f0b38299ad01562bb37 
+##                                                                             TRUE 
+## ./SpamAssassinMessages//messages/easy_ham/00063.0acbc484a73f0e0b727e06c100d8df7b 
+##                                                                             TRUE 
+##  ./SpamAssassinMessages//messages/easy_ham/0030.77828e31de08ebb58b583688b87524cc 
+##                                                                             TRUE 
+## ./SpamAssassinMessages//messages/easy_ham/00368.f86324a03e7ae7070cc40f302385f5d3 
+##                                                                             TRUE 
+## ./SpamAssassinMessages//messages/easy_ham/00389.8606961eaeef7b921ce1c53773248d69 
+##                                                                             TRUE 
+##  ./SpamAssassinMessages//messages/easy_ham/0047.5c3e049737a2813d4ac6f13f02362fb1 
+##                                                                             TRUE 
+## ./SpamAssassinMessages//messages/easy_ham/00775.0e012f373467846510d9db297e99a008 
+##                                                                             TRUE 
+## ./SpamAssassinMessages//messages/easy_ham/00883.c44a035e7589e83076b7f1fed8fa97d5 
+##                                                                             TRUE</code></pre>
 <pre class="r"><code>header = sampleSplit[[6]]$header
 boundaryIdx = grep(&quot;boundary=&quot;, header)
 header[boundaryIdx]</code></pre>
@@ -415,6 +358,1439 @@ header[boundaryIdx]</code></pre>
 boundaryIdx2 = grep(&quot;boundary=&quot;, header2)
 header2[boundaryIdx2]</code></pre>
 <pre><code>## [1] &quot;Content-Type: multipart/alternative; boundary=Apple-Mail-2-874629474&quot;</code></pre>
+<pre class="r"><code>sub('.*boundary=&quot;(.*)&quot;;.*', &quot;\\1&quot;, header2[boundaryIdx2])</code></pre>
+<pre><code>## [1] &quot;Content-Type: multipart/alternative; boundary=Apple-Mail-2-874629474&quot;</code></pre>
+<pre class="r"><code>boundary2 = gsub('&quot;', &quot;&quot;, header2[boundaryIdx2])
+
+sub(&quot;.*boundary= *(.*);?.*&quot;, &quot;\\1&quot;, boundary2)</code></pre>
+<pre><code>## [1] &quot;Apple-Mail-2-874629474&quot;</code></pre>
+<pre class="r"><code>boundary = gsub('&quot;', &quot;&quot;, header[boundaryIdx])
+sub(&quot;.*boundary= *(.*);?.*&quot;, &quot;\\1&quot;, boundary)</code></pre>
+<pre><code>## [1] &quot;==_Exmh_-1317289252P;&quot;</code></pre>
+<pre class="r"><code>sub(&quot;.*boundary= *([^;]*);?.*&quot;, &quot;\\1&quot;, boundary)</code></pre>
+<pre><code>## [1] &quot;==_Exmh_-1317289252P&quot;</code></pre>
+<pre class="r"><code>getBoundary = function(header) {
+  boundaryIdx = grep(&quot;boundary=&quot;, header)
+  boundary = gsub('&quot;', &quot;&quot;, header[boundaryIdx])
+  gsub(&quot;.*boundary= *([^;]*);?.*&quot;, &quot;\\1&quot;, boundary)
+}
+
+sampleSplit[[6]]$body</code></pre>
+<pre><code>##  [1] &quot;--==_Exmh_-1317289252P&quot;                                                           
+##  [2] &quot;Content-Type: text/plain; charset=us-ascii&quot;                                       
+##  [3] &quot;&quot;                                                                                 
+##  [4] &quot;&gt; From:  Chris Garrigues &lt;cwg-exmh@DeepEddy.Com&gt;&quot;                                 
+##  [5] &quot;&gt; Date:  Wed, 21 Aug 2002 10:40:39 -0500&quot;                                         
+##  [6] &quot;&gt;&quot;                                                                                
+##  [7] &quot;&gt; &gt; From:  Chris Garrigues &lt;cwg-exmh@DeepEddy.Com&gt;&quot;                               
+##  [8] &quot;&gt; &gt; Date:  Wed, 21 Aug 2002 10:17:45 -0500&quot;                                       
+##  [9] &quot;&gt; &gt;&quot;                                                                              
+## [10] &quot;&gt; &gt; Ouch...I'll get right on it.&quot;                                                 
+## [11] &quot;&gt; &gt; &quot;                                                                             
+## [12] &quot;&gt; &gt; &gt; From:  Robert Elz &lt;kre@munnari.OZ.AU&gt;&quot;                                      
+## [13] &quot;&gt; &gt; &gt; Date:  Wed, 21 Aug 2002 19:30:01 +0700&quot;                                     
+## [14] &quot;&gt; &gt; &gt;&quot;                                                                            
+## [15] &quot;&gt; &gt; &gt; Any chance of having that lengthen instead?   I like all my exmh stuff&quot;     
+## [16] &quot;&gt; &gt; &gt; in nice columns (fits the display better).   That is, I use the detache&quot;    
+## [17] &quot;&gt; d&quot;                                                                              
+## [18] &quot;&gt; &gt; &gt; folder list, one column.   The main exmh window takes up full screen,&quot;      
+## [19] &quot;&gt; &gt; &gt; top to bottom, but less than half the width, etc...&quot;                        
+## [20] &quot;&gt; &quot;                                                                               
+## [21] &quot;&gt; I thought about that.  The first order approximation would be to just add &quot;     
+## [22] &quot;&gt; using pack .... -side top instead of pack ... -side left, however, since their &quot;
+## [23] &quot;&gt; each a different width, it would look funny.&quot;                                   
+## [24] &quot;&quot;                                                                                 
+## [25] &quot;I've done this.  It's not as pretty as I think it should be, but it works.  &quot;     
+## [26] &quot;I'm going to leave the cosmetic issues to others.  When I update the &quot;            
+## [27] &quot;documentation, I'll add this to the exmh.TODO file.&quot;                              
+## [28] &quot;&quot;                                                                                 
+## [29] &quot;I'm leaving for a 2 1/2 week vacation in a week, so this is the last new &quot;        
+## [30] &quot;functionality I'm going to add for a while.  Also, I now have pretty much &quot;       
+## [31] &quot;everything in there that I want for my own use, so I'm probably pretty much &quot;     
+## [32] &quot;done.  I'll work on bug fixes and documentation before my vacation, and &quot;         
+## [33] &quot;hopefully do nothing more afterwards.&quot;                                            
+## [34] &quot;&quot;                                                                                 
+## [35] &quot;Chris&quot;                                                                            
+## [36] &quot;&quot;                                                                                 
+## [37] &quot;-- &quot;                                                                              
+## [38] &quot;Chris Garrigues                 http://www.DeepEddy.Com/~cwg/&quot;                    
+## [39] &quot;virCIO                          http://www.virCIO.Com&quot;                            
+## [40] &quot;716 Congress, Suite 200&quot;                                                          
+## [41] &quot;Austin, TX  78701\t\t+1 512 374 0500&quot;                                               
+## [42] &quot;&quot;                                                                                 
+## [43] &quot;  World War III:  The Wrong-Doers Vs. the Evil-Doers.&quot;                            
+## [44] &quot;&quot;                                                                                 
+## [45] &quot;&quot;                                                                                 
+## [46] &quot;&quot;                                                                                 
+## [47] &quot;&quot;                                                                                 
+## [48] &quot;--==_Exmh_-1317289252P&quot;                                                           
+## [49] &quot;Content-Type: application/pgp-signature&quot;                                          
+## [50] &quot;&quot;                                                                                 
+## [51] &quot;-----BEGIN PGP SIGNATURE-----&quot;                                                    
+## [52] &quot;Version: GnuPG v1.0.6 (GNU/Linux)&quot;                                                
+## [53] &quot;Comment: Exmh version 2.2_20000822 06/23/2000&quot;                                    
+## [54] &quot;&quot;                                                                                 
+## [55] &quot;iD8DBQE9ZQJ/K9b4h5R0IUIRAiPuAJwL4mUus5whLNQZC8MsDlGpEdKNrACcDfZH&quot;                 
+## [56] &quot;PcGgN9frLIM+C5Z3vagi2wE=&quot;                                                         
+## [57] &quot;=qJoJ&quot;                                                                            
+## [58] &quot;-----END PGP SIGNATURE-----&quot;                                                      
+## [59] &quot;&quot;                                                                                 
+## [60] &quot;--==_Exmh_-1317289252P--&quot;                                                         
+## [61] &quot;&quot;                                                                                 
+## [62] &quot;&quot;                                                                                 
+## [63] &quot;&quot;                                                                                 
+## [64] &quot;_______________________________________________&quot;                                  
+## [65] &quot;Exmh-workers mailing list&quot;                                                        
+## [66] &quot;Exmh-workers@redhat.com&quot;                                                          
+## [67] &quot;https://listman.redhat.com/mailman/listinfo/exmh-workers&quot;                         
+## [68] &quot;&quot;</code></pre>
+<pre class="r"><code>boundary = getBoundary(headerList[[15]]) 
+body = sampleSplit[[15]]$body
+
+bString = paste(&quot;--&quot;, boundary, sep = &quot;&quot;)
+bStringLocs = which(bString == body)
+bStringLocs</code></pre>
+<pre><code>## [1]  2 35</code></pre>
+<pre class="r"><code>eString = paste(&quot;--&quot;, boundary, &quot;--&quot;, sep = &quot;&quot;)
+eStringLoc = which(eString == body)
+eStringLoc</code></pre>
+<pre><code>## [1] 77</code></pre>
+<pre class="r"><code>msg = body[ (bStringLocs[1] + 1) : (bStringLocs[2] - 1)]
+tail(msg)</code></pre>
+<pre><code>## [1] &quot;&gt;&quot;     &quot;&gt;Yuck&quot; &quot;&gt;  &quot;   &quot;&gt;&quot;     &quot;&quot;      &quot;&quot;</code></pre>
+<pre class="r"><code>msg = c(msg, body[ (eStringLoc + 1) : length(body) ])
+tail(msg)</code></pre>
+<pre><code>## [1] &quot;&gt;  &quot; &quot;&gt;&quot;   &quot;&quot;    &quot;&quot;    &quot;&quot;    &quot;&quot;</code></pre>
+<pre class="r"><code>dropAttach = function(body, boundary){
+  
+  bString = paste(&quot;--&quot;, boundary, sep = &quot;&quot;)
+  bStringLocs = which(bString == body)
+  
+  if (length(bStringLocs) &lt;= 1) return(body)
+  
+  eString = paste(&quot;--&quot;, boundary, &quot;--&quot;, sep = &quot;&quot;)
+  eStringLoc = which(eString == body)
+  if (length(eStringLoc) == 0) 
+    return(body[ (bStringLocs[1] + 1) : (bStringLocs[2] - 1)])
+  
+  n = length(body)
+  if (eStringLoc &lt; n) 
+     return( body[ c( (bStringLocs[1] + 1) : (bStringLocs[2] - 1), 
+                    ( (eStringLoc + 1) : n )) ] )
+  
+  return( body[ (bStringLocs[1] + 1) : (bStringLocs[2] - 1) ])
+}
+
+head(sampleSplit[[1]]$body)</code></pre>
+<pre><code>## [1] &quot;    Date:        Wed, 21 Aug 2002 10:54:46 -0500&quot;                           
+## [2] &quot;    From:        Chris Garrigues &lt;cwg-dated-1030377287.06fa6d@DeepEddy.Com&gt;&quot;
+## [3] &quot;    Message-ID:  &lt;1029945287.4797.TMDA@deepeddy.vircio.com&gt;&quot;                
+## [4] &quot;&quot;                                                                           
+## [5] &quot;&quot;                                                                           
+## [6] &quot;  | I can't reproduce this error.&quot;</code></pre>
+<pre class="r"><code>msg = sampleSplit[[3]]$body
+head(msg)</code></pre>
+<pre><code>## [1] &quot;Man Threatens Explosion In Moscow &quot;                                        
+## [2] &quot;&quot;                                                                          
+## [3] &quot;Thursday August 22, 2002 1:40 PM&quot;                                          
+## [4] &quot;MOSCOW (AP) - Security officers on Thursday seized an unidentified man who&quot;
+## [5] &quot;said he was armed with explosives and threatened to blow up his truck in&quot;  
+## [6] &quot;front of Russia's Federal Security Services headquarters in Moscow, NTV&quot;</code></pre>
+<pre class="r"><code>msg[ c(1, 3, 26, 27) ]</code></pre>
+<pre><code>## [1] &quot;Man Threatens Explosion In Moscow &quot;                      
+## [2] &quot;Thursday August 22, 2002 1:40 PM&quot;                        
+## [3] &quot;4 DVDs Free +s&amp;p Join Now&quot;                               
+## [4] &quot;http://us.click.yahoo.com/pt6YBB/NXiEAA/mG3HAA/7gSolB/TM&quot;</code></pre>
+<pre class="r"><code>cleanMsg = tolower(gsub(&quot;[[:punct:]0-9[:blank:]]+&quot;, &quot; &quot;, msg))
+cleanMsg[ c(1, 3, 26, 27) ]</code></pre>
+<pre><code>## [1] &quot;man threatens explosion in moscow &quot;                   
+## [2] &quot;thursday august pm&quot;                                   
+## [3] &quot; dvds free s p join now&quot;                              
+## [4] &quot;http us click yahoo com pt ybb nxieaa mg haa gsolb tm&quot;</code></pre>
+<pre class="r"><code>library(tm)</code></pre>
+<pre><code>## Warning: package 'tm' was built under R version 3.5.2</code></pre>
+<pre><code>## Loading required package: NLP</code></pre>
+<pre><code>## Warning: package 'NLP' was built under R version 3.5.2</code></pre>
+<pre class="r"><code>stopWords = stopwords()
+cleanSW = tolower(gsub(&quot;[[:punct:]0-9[:blank:]]+&quot;, &quot; &quot;, stopWords))
+SWords = unlist(strsplit(cleanSW, &quot;[[:blank:]]+&quot;))
+SWords = SWords[ nchar(SWords) &gt; 1 ]
+stopWords = unique(SWords)</code></pre>
+<pre class="r"><code>words = unlist(strsplit(cleanMsg, &quot;[[:blank:]]+&quot;))
+
+words = words[ nchar(words) &gt; 1 ]
+
+words = words[ !( words %in% stopWords) ]
+head(words)</code></pre>
+<pre><code>## [1] &quot;man&quot;       &quot;threatens&quot; &quot;explosion&quot; &quot;moscow&quot;    &quot;thursday&quot;  &quot;august&quot;</code></pre>
+<pre class="r"><code>cleanText =
+function(msg)   {
+  tolower(gsub(&quot;[[:punct:]0-9[:space:][:blank:]]+&quot;, &quot; &quot;, msg))
+}
+
+findMsgWords = 
+function(msg, stopWords) {
+ if(is.null(msg))
+  return(character())
+
+ words = unique(unlist(strsplit(cleanText(msg), &quot;[[:blank:]\t]+&quot;)))
+ 
+ # drop empty and 1 letter words
+ words = words[ nchar(words) &gt; 1]
+ words = words[ !( words %in% stopWords) ]
+ invisible(words)
+}
+
+processAllWords = function(dirName, stopWords)
+{
+       # read all files in the directory
+  fileNames = list.files(dirName, full.names = TRUE)
+       # drop files that are not email, i.e., cmds
+  notEmail = grep(&quot;cmds$&quot;, fileNames)
+  if ( length(notEmail) &gt; 0) fileNames = fileNames[ - notEmail ]
+
+  messages = lapply(fileNames, readLines, encoding = &quot;latin1&quot;)
+  
+       # split header and body
+  emailSplit = lapply(messages, splitMessage)
+       # put body and header in own lists
+  bodyList = lapply(emailSplit, function(msg) msg$body)
+  headerList = lapply(emailSplit, function(msg) msg$header)
+  rm(emailSplit)
+  
+       # determine which messages have attachments
+  hasAttach = sapply(headerList, function(header) {
+    CTloc = grep(&quot;Content-Type&quot;, header)
+    if (length(CTloc) == 0) return(0)
+    multi = grep(&quot;multi&quot;, tolower(header[CTloc])) 
+    if (length(multi) == 0) return(0)
+    multi
+  })
+  
+  hasAttach = which(hasAttach &gt; 0)
+  
+       # find boundary strings for messages with attachments
+  boundaries = sapply(headerList[hasAttach], getBoundary)
+  
+       # drop attachments from message body
+  bodyList[hasAttach] = mapply(dropAttach, bodyList[hasAttach], 
+                               boundaries, SIMPLIFY = FALSE)
+  
+       # extract words from body
+  msgWordsList = lapply(bodyList, findMsgWords, stopWords)
+  
+  invisible(msgWordsList)
+}</code></pre>
+<pre class="r"><code>msgWordsList = lapply(fullDirNames, processAllWords, stopWords = stopWords) </code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): incomplete final line
+## found on './SpamAssassinMessages//messages/hard_ham/
+## 00228.0eaef7857bbbf3ebf5edbbdae2b30493'</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): incomplete final line
+## found on './SpamAssassinMessages//messages/hard_ham/
+## 0231.7c6cc716ce3f3bfad7130dd3c8d7b072'</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): incomplete final line
+## found on './SpamAssassinMessages//messages/hard_ham/
+## 0250.7c6cc716ce3f3bfad7130dd3c8d7b072'</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): incomplete final line found on './
+## SpamAssassinMessages//messages/spam/00136.faa39d8e816c70f23b4bb8758d8a74f0'</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): incomplete final line found on './
+## SpamAssassinMessages//messages/spam/0143.260a940290dcb61f9327b224a368d4af'</code></pre>
+<pre class="r"><code>numMsgs = sapply(msgWordsList, length)
+numMsgs</code></pre>
+<pre><code>## [1] 5051 1400  500 1000 1397</code></pre>
+<pre class="r"><code>isSpam = rep(c(FALSE, FALSE, FALSE, TRUE, TRUE), numMsgs)
+
+msgWordsList = unlist(msgWordsList, recursive = FALSE)
+
+numEmail = length(isSpam)
+numSpam = sum(isSpam)
+numHam = numEmail - numSpam
+
+set.seed(418910)
+
+testSpamIdx = sample(numSpam, size = floor(numSpam/3))
+testHamIdx = sample(numHam, size = floor(numHam/3))
+
+testMsgWords = c((msgWordsList[isSpam])[testSpamIdx],
+                 (msgWordsList[!isSpam])[testHamIdx] )
+trainMsgWords = c((msgWordsList[isSpam])[ - testSpamIdx], 
+                  (msgWordsList[!isSpam])[ - testHamIdx])
+
+testIsSpam = rep(c(TRUE, FALSE), 
+                 c(length(testSpamIdx), length(testHamIdx)))
+trainIsSpam = rep(c(TRUE, FALSE), 
+                 c(numSpam - length(testSpamIdx), 
+                   numHam - length(testHamIdx)))
+
+bow = unique(unlist(trainMsgWords))
+
+length(bow)</code></pre>
+<pre><code>## [1] 80059</code></pre>
+<pre class="r"><code>spamWordCounts = rep(0, length(bow))
+
+names(spamWordCounts) = bow
+
+tmp = lapply(trainMsgWords[trainIsSpam], unique)
+tt = table( unlist(tmp) )
+spamWordCounts[ names(tt) ] = tt</code></pre>
+<pre class="r"><code>computeFreqs =
+function(wordsList, spam, bow = unique(unlist(wordsList)))
+{
+   # create a matrix for spam, ham, and log odds
+  wordTable = matrix(0.5, nrow = 4, ncol = length(bow), 
+                     dimnames = list(c(&quot;spam&quot;, &quot;ham&quot;, 
+                                        &quot;presentLogOdds&quot;, 
+                                        &quot;absentLogOdds&quot;),  bow))
+
+   # For each spam message, add 1 to counts for words in message
+  counts.spam = table(unlist(lapply(wordsList[spam], unique)))
+  wordTable[&quot;spam&quot;, names(counts.spam)] = counts.spam + .5
+
+   # Similarly for ham messages
+  counts.ham = table(unlist(lapply(wordsList[!spam], unique)))  
+  wordTable[&quot;ham&quot;, names(counts.ham)] = counts.ham + .5  
+
+
+   # Find the total number of spam and ham
+  numSpam = sum(spam)
+  numHam = length(spam) - numSpam
+
+   # Prob(word|spam) and Prob(word | ham)
+  wordTable[&quot;spam&quot;, ] = wordTable[&quot;spam&quot;, ]/(numSpam + .5)
+  wordTable[&quot;ham&quot;, ] = wordTable[&quot;ham&quot;, ]/(numHam + .5)
+  
+   # log odds
+  wordTable[&quot;presentLogOdds&quot;, ] = 
+     log(wordTable[&quot;spam&quot;,]) - log(wordTable[&quot;ham&quot;, ])
+  wordTable[&quot;absentLogOdds&quot;, ] = 
+     log((1 - wordTable[&quot;spam&quot;, ])) - log((1 -wordTable[&quot;ham&quot;, ]))
+
+  invisible(wordTable)
+}
+##################################################################################################
+trainTable = computeFreqs(trainMsgWords, trainIsSpam)
+
+newMsg = testMsgWords[[1]]
+
+newMsg = newMsg[!is.na(match(newMsg, colnames(trainTable)))]
+
+present = colnames(trainTable) %in% newMsg
+
+sum(trainTable[&quot;presentLogOdds&quot;, present]) + 
+  sum(trainTable[&quot;absentLogOdds&quot;, !present])</code></pre>
+<pre><code>## [1] 255.0476</code></pre>
+<pre class="r"><code>newMsg = testMsgWords[[ which(!testIsSpam)[1] ]]
+newMsg = newMsg[!is.na(match(newMsg, colnames(trainTable)))]
+present = (colnames(trainTable) %in% newMsg)
+sum(trainTable[&quot;presentLogOdds&quot;, present]) + 
+     sum(trainTable[&quot;absentLogOdds&quot;, !present])</code></pre>
+<pre><code>## [1] -124.3275</code></pre>
+<pre class="r"><code>computeMsgLLR = function(words, freqTable) 
+{
+       # Discards words not in training data.
+  words = words[!is.na(match(words, colnames(freqTable)))]
+
+       # Find which words are present
+  present = colnames(freqTable) %in% words
+
+  sum(freqTable[&quot;presentLogOdds&quot;, present]) +
+    sum(freqTable[&quot;absentLogOdds&quot;, !present])
+}
+
+testLLR = sapply(testMsgWords, computeMsgLLR, trainTable)
+
+tapply(testLLR, testIsSpam, summary)</code></pre>
+<pre><code>## $`FALSE`
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+## -1361.89  -127.06  -101.18  -116.25   -81.26   700.23 
+## 
+## $`TRUE`
+##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##   -60.574     6.369    49.837   137.546   131.719 23518.028</code></pre>
+<pre class="r"><code>typeIErrorRate = 
+function(tau, llrVals, spam)
+{
+  classify = llrVals &gt; tau
+  sum(classify &amp; !spam)/sum(!spam)
+}
+
+typeIErrorRate(0, testLLR,testIsSpam)</code></pre>
+<pre><code>## [1] 0.003452741</code></pre>
+<pre class="r"><code>typeIErrorRate(-20, testLLR,testIsSpam)</code></pre>
+<pre><code>## [1] 0.005610703</code></pre>
+<pre class="r"><code>typeIErrorRates = 
+function(llrVals, isSpam) 
+{
+  o = order(llrVals)
+  llrVals =  llrVals[o]
+  isSpam = isSpam[o]
+
+  idx = which(!isSpam)
+  N = length(idx)
+  list(error = (N:1)/N, values = llrVals[idx])
+}
+
+typeIIErrorRates = function(llrVals, isSpam) {
+    
+  o = order(llrVals)
+  llrVals =  llrVals[o]
+  isSpam = isSpam[o]
+    
+    
+  idx = which(isSpam)
+  N = length(idx)
+  list(error = (1:(N))/N, values = llrVals[idx])
+  }  
+
+xI = typeIErrorRates(testLLR, testIsSpam)
+xII = typeIIErrorRates(testLLR, testIsSpam)
+tau01 = round(min(xI$values[xI$error &lt;= 0.01]))
+t2 = max(xII$error[ xII$values &lt; tau01 ])
+
+k = 5
+numTrain = length(trainMsgWords)
+partK = sample(numTrain)
+tot = k * floor(numTrain/k)
+partK = matrix(partK[1:tot], ncol = k)
+
+testFoldOdds = NULL
+for (i in 1:k) {
+  foldIdx = partK[ , i]
+  trainTabFold = computeFreqs(trainMsgWords[-foldIdx], trainIsSpam[-foldIdx])
+  testFoldOdds = c(testFoldOdds, 
+               sapply(trainMsgWords[ foldIdx ], computeMsgLLR, trainTabFold))
+}
+
+testFoldSpam = NULL
+for (i in 1:k) {
+  foldIdx = partK[ , i]
+  testFoldSpam = c(testFoldSpam, trainIsSpam[foldIdx])
+}
+
+xFoldI = typeIErrorRates(testFoldOdds, testFoldSpam)
+xFoldII = typeIIErrorRates(testFoldOdds, testFoldSpam)
+tauFoldI = round(min(xFoldI$values[xFoldI$error &lt;= 0.01]))
+tFold2 = xFoldII$error[ xFoldII$values &lt; tauFoldI ]
+
+smallNums = rep((1/2)^40, 2000000)
+
+headerPieces = read.dcf(textConnection(header), all = TRUE)
+
+headerPieces[, &quot;Delivered-To&quot;]</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;zzzz@localhost.netnoteinc.com&quot;              
+## [2] &quot;exmh-workers@listman.spamassassin.taint.org&quot;</code></pre>
+<pre class="r"><code>headerVec = unlist(headerPieces)
+dupKeys = sapply(headerPieces, function(x) length(unlist(x)))
+names(headerVec) = rep(colnames(headerPieces), dupKeys)
+
+headerVec[ which(names(headerVec) == &quot;Delivered-To&quot;) ]</code></pre>
+<pre><code>##                                  Delivered-To 
+##               &quot;zzzz@localhost.netnoteinc.com&quot; 
+##                                  Delivered-To 
+## &quot;exmh-workers@listman.spamassassin.taint.org&quot;</code></pre>
+<pre class="r"><code>length(headerVec)</code></pre>
+<pre><code>## [1] 44</code></pre>
+<pre class="r"><code>length(unique(names(headerVec)))</code></pre>
+<pre><code>## [1] 31</code></pre>
+<pre class="r"><code>processHeader = function(header)
+{
+       # modify the first line to create a key:value pair
+  header[1] = sub(&quot;^From&quot;, &quot;Top-From:&quot;, header[1])
+  
+  headerMat = read.dcf(textConnection(header), all = TRUE)
+  headerVec = unlist(headerMat)
+  
+  dupKeys = sapply(headerMat, function(x) length(unlist(x)))
+  names(headerVec) = rep(colnames(headerMat), dupKeys)
+  
+  return(headerVec)
+}</code></pre>
+<pre class="r"><code>headerList = lapply(sampleSplit, 
+                    function(msg) {
+                      processHeader(msg$header)} )
+
+contentTypes = sapply(headerList, function(header) 
+                                        header[&quot;Content-Type&quot;])
+names(contentTypes) = NULL
+contentTypes</code></pre>
+<pre><code>##  [1] &quot;text/plain; charset=us-ascii&quot;                                                                                   
+##  [2] &quot;text/plain; charset=US-ASCII&quot;                                                                                   
+##  [3] &quot;text/plain; charset=US-ASCII&quot;                                                                                   
+##  [4] &quot;text/plain; charset=\&quot;us-ascii\&quot;&quot;                                                                               
+##  [5] &quot;text/plain; charset=US-ASCII&quot;                                                                                   
+##  [6] &quot;multipart/signed;\nboundary=\&quot;==_Exmh_-1317289252P\&quot;;\nmicalg=pgp-sha1;\nprotocol=\&quot;application/pgp-signature\&quot;&quot;
+##  [7] NA                                                                                                               
+##  [8] &quot;multipart/alternative;\nboundary=\&quot;----=_NextPart_000_00C1_01C25017.F2F04E20\&quot;&quot;                                 
+##  [9] &quot;multipart/alternative; boundary=Apple-Mail-2-874629474&quot;                                                         
+## [10] &quot;multipart/signed;\nboundary=\&quot;==_Exmh_-518574644P\&quot;;\nmicalg=pgp-sha1;\nprotocol=\&quot;application/pgp-signature\&quot;&quot; 
+## [11] &quot;multipart/related;\nboundary=\&quot;------------090602010909000705010009\&quot;&quot;                                          
+## [12] &quot;multipart/signed;\nboundary=\&quot;==_Exmh_-451422450P\&quot;;\nmicalg=pgp-sha1;\nprotocol=\&quot;application/pgp-signature\&quot;&quot; 
+## [13] &quot;multipart/signed;\nboundary=\&quot;==_Exmh_267413022P\&quot;;\nmicalg=pgp-sha1;\nprotocol=\&quot;application/pgp-signature\&quot;&quot;  
+## [14] &quot;multipart/mixed;\nboundary=\&quot;----=_NextPart_000_0005_01C26412.7545C1D0\&quot;&quot;                                       
+## [15] &quot;multipart/alternative;\nboundary=\&quot;------------080209060700030309080805\&quot;&quot;</code></pre>
+<pre class="r"><code>hasAttach = grep(&quot;^ *multi&quot;, tolower(contentTypes))
+hasAttach</code></pre>
+<pre><code>## [1]  6  8  9 10 11 12 13 14 15</code></pre>
+<pre class="r"><code>boundaries = getBoundary(contentTypes[ hasAttach ])
+boundaries</code></pre>
+<pre><code>## [1] &quot;==_Exmh_-1317289252P&quot;                     
+## [2] &quot;----=_NextPart_000_00C1_01C25017.F2F04E20&quot;
+## [3] &quot;Apple-Mail-2-874629474&quot;                   
+## [4] &quot;==_Exmh_-518574644P&quot;                      
+## [5] &quot;------------090602010909000705010009&quot;     
+## [6] &quot;==_Exmh_-451422450P&quot;                      
+## [7] &quot;==_Exmh_267413022P&quot;                       
+## [8] &quot;----=_NextPart_000_0005_01C26412.7545C1D0&quot;
+## [9] &quot;------------080209060700030309080805&quot;</code></pre>
+<pre class="r"><code>boundary = boundaries[9]
+body = sampleSplit[[15]]$body
+
+bString = paste(&quot;--&quot;, boundary, sep = &quot;&quot;)
+bStringLocs = which(bString == body)
+bStringLocs</code></pre>
+<pre><code>## [1]  2 35</code></pre>
+<pre class="r"><code>eString = paste(&quot;--&quot;, boundary, &quot;--&quot;, sep = &quot;&quot;)
+eStringLoc = which(eString == body)
+eStringLoc</code></pre>
+<pre><code>## [1] 77</code></pre>
+<pre class="r"><code>diff(c(bStringLocs[-1], eStringLoc))</code></pre>
+<pre><code>## [1] 42</code></pre>
+<pre class="r"><code>#####################################################################
+processAttach = function(body, contentType){
+  
+  boundary = getBoundary(contentType)
+  
+  bString = paste(&quot;--&quot;, boundary, &quot;$&quot;, sep = &quot;&quot;)
+  bStringLocs = grep(bString, body)
+  
+  eString = paste(&quot;--&quot;, boundary, &quot;--$&quot;, sep = &quot;&quot;)
+  eStringLoc = grep(eString, body)
+  
+  n = length(body)
+  
+  if (length(eStringLoc) == 0) eStringLoc = n + 1
+  if (length(bStringLocs) == 1) attachLocs = NULL
+  else attachLocs = c(bStringLocs[-1],  eStringLoc)
+  
+  msg = body[ (bStringLocs[1] + 1) : min(n, (bStringLocs[2] - 1), 
+                                         na.rm = TRUE)]
+  
+  if ( eStringLoc &lt; n )
+    msg = c(msg, body[ (eStringLoc + 1) : n ])
+  
+  if ( !is.null(attachLocs) ) {
+    attachLens = diff(attachLocs, lag = 1) 
+    attachTypes = mapply(function(begL, endL) {
+      contentTypeLoc = grep(&quot;[Cc]ontent-[Tt]ype&quot;, body[ (begL + 1) : (endL - 1)])
+      contentType = body[ begL + contentTypeLoc]
+      contentType = gsub('&quot;', &quot;&quot;, contentType )
+      MIMEType = sub(&quot; *Content-Type: *([^;]*);?.*&quot;, &quot;\\1&quot;, contentType)
+      return(MIMEType)
+    }, attachLocs[-length(attachLocs)], attachLocs[-1])
+  }
+  
+  if (is.null(attachLocs)) return(list(body = msg, attachInfo = NULL) )
+  else return(list(body = msg, 
+                   attachDF = data.frame(aLen = attachLens, 
+                                         aType = attachTypes,
+                                         stringsAsFactors = FALSE)))                                
+}
+
+bodyList = lapply(sampleSplit, function(msg) msg$body)
+attList = mapply(processAttach, bodyList[hasAttach], 
+                 contentTypes[hasAttach], 
+                 SIMPLIFY = FALSE)
+
+lens = sapply(attList, function(processedA) 
+                           processedA$attachDF$aLen)
+head(lens)  # will cause an error with the first message. its ok.</code></pre>
+<pre><code>## $`./SpamAssassinMessages//messages/easy_ham/00014.cb20e10b2bfcb8210a1c310798532a57`
+## [1] 12
+## 
+## $`./SpamAssassinMessages//messages/easy_ham/00062.009f5a1a8fa88f0b38299ad01562bb37`
+## [1] 44 44
+## 
+## $`./SpamAssassinMessages//messages/easy_ham/00063.0acbc484a73f0e0b727e06c100d8df7b`
+## [1] 83
+## 
+## $`./SpamAssassinMessages//messages/easy_ham/0030.77828e31de08ebb58b583688b87524cc`
+## [1] 12
+## 
+## $`./SpamAssassinMessages//messages/easy_ham/00368.f86324a03e7ae7070cc40f302385f5d3`
+## NULL
+## 
+## $`./SpamAssassinMessages//messages/easy_ham/00389.8606961eaeef7b921ce1c53773248d69`
+## [1] 12</code></pre>
+<pre class="r"><code>attList[[2]]$attachDF</code></pre>
+<pre><code>##   aLen                                                  aType
+## 1   44                                              text/html
+## 2   44 &lt;META http-equiv=3DContent-Type content=3Dtext/html; =</code></pre>
+<pre class="r"><code>body = bodyList[hasAttach][[2]]
+length(body)</code></pre>
+<pre><code>## [1] 86</code></pre>
+<pre class="r"><code>body[35:45]</code></pre>
+<pre><code>##  [1] &quot;&quot;                                                                
+##  [2] &quot;------=_NextPart_000_00C1_01C25017.F2F04E20&quot;                     
+##  [3] &quot;Content-Type: text/html;&quot;                                        
+##  [4] &quot;\tcharset=\&quot;Windows-1252\&quot;&quot;                                       
+##  [5] &quot;Content-Transfer-Encoding: quoted-printable&quot;                     
+##  [6] &quot;&quot;                                                                
+##  [7] &quot;&lt;!DOCTYPE HTML PUBLIC \&quot;-//W3C//DTD HTML 4.0 Transitional//EN\&quot;&gt;&quot;
+##  [8] &quot;&lt;HTML&gt;&lt;HEAD&gt;&quot;                                                    
+##  [9] &quot;&lt;META http-equiv=3DContent-Type content=3D\&quot;text/html; =&quot;        
+## [10] &quot;charset=3Dwindows-1252\&quot;&gt;&quot;                                       
+## [11] &quot;&lt;META content=3D\&quot;MSHTML 6.00.2716.2200\&quot; name=3DGENERATOR&gt;&quot;</code></pre>
+<pre class="r"><code>##################################################################
+processAttach = function(body, contentType){
+
+  n = length(body)
+  boundary = getBoundary(contentType)
+ 
+  bString = paste(&quot;--&quot;, boundary, sep = &quot;&quot;)
+  bStringLocs = which(bString == body)
+  eString = paste(&quot;--&quot;, boundary, &quot;--&quot;, sep = &quot;&quot;)
+  eStringLoc = which(eString == body)
+  
+  if (length(eStringLoc) == 0) eStringLoc = n
+  if (length(bStringLocs) &lt;= 1) {
+    attachLocs = NULL
+    msgLastLine = n
+    if (length(bStringLocs) == 0) bStringLocs = 0
+  } else {
+    attachLocs = c(bStringLocs[ -1 ],  eStringLoc)
+    msgLastLine = bStringLocs[2] - 1
+  }
+  
+  msg = body[ (bStringLocs[1] + 1) : msgLastLine] 
+  if ( eStringLoc &lt; n )
+    msg = c(msg, body[ (eStringLoc + 1) : n ])
+  
+  if ( !is.null(attachLocs) ) {
+    attachLens = diff(attachLocs, lag = 1) 
+    attachTypes = mapply(function(begL, endL) {
+      CTloc = grep(&quot;^[Cc]ontent-[Tt]ype&quot;, body[ (begL + 1) : (endL - 1)])
+      if ( length(CTloc) == 0 ) {
+        MIMEType = NA
+      } else {
+        CTval = body[ begL + CTloc[1] ]
+        CTval = gsub('&quot;', &quot;&quot;, CTval )
+        MIMEType = sub(&quot; *[Cc]ontent-[Tt]ype: *([^;]*);?.*&quot;, &quot;\\1&quot;, CTval)   
+      }
+      return(MIMEType)
+    }, attachLocs[-length(attachLocs)], attachLocs[-1])
+  }
+  
+  if (is.null(attachLocs)) return(list(body = msg, attachDF = NULL) )
+  return(list(body = msg, 
+             attachDF = data.frame(aLen = attachLens, 
+                                     aType = unlist(attachTypes),
+                                     stringsAsFactors = FALSE)))                                
+}                       
+
+readEmail = function(dirName) {
+       # retrieve the names of files in directory
+  fileNames = list.files(dirName, full.names = TRUE)
+       # drop files that are not email
+  notEmail = grep(&quot;cmds$&quot;, fileNames)
+  if ( length(notEmail) &gt; 0) fileNames = fileNames[ - notEmail ]
+
+       # read all files in the directory
+  lapply(fileNames, readLines, encoding = &quot;latin1&quot;)
+}
+
+########################################################
+processAllEmail = function(dirName, isSpam = FALSE)
+{
+       # read all files in the directory
+  messages = readEmail(dirName)
+  fileNames = names(messages)
+  n = length(messages)
+  
+       # split header from body
+  eSplit = lapply(messages, splitMessage)
+  rm(messages)
+
+       # process header as named character vector
+  headerList = lapply(eSplit, function(msg) 
+                                 processHeader(msg$header))
+  
+       # extract content-type key
+  contentTypes = sapply(headerList, function(header) 
+                                       header[&quot;Content-Type&quot;])
+  
+       # extract the body
+  bodyList = lapply(eSplit, function(msg) msg$body)
+  rm(eSplit)
+
+       # which email have attachments
+  hasAttach = grep(&quot;^ *multi&quot;, tolower(contentTypes))
+
+       # get summary stats for attachments and the shorter body
+  attList = mapply(processAttach, bodyList[hasAttach], 
+                   contentTypes[hasAttach], SIMPLIFY = FALSE)
+  
+  bodyList[hasAttach] = lapply(attList, function(attEl) 
+                                           attEl$body)
+ 
+  attachInfo = vector(&quot;list&quot;, length = n )
+  attachInfo[ hasAttach ] = lapply(attList, 
+                                  function(attEl) attEl$attachDF)
+ 
+       # prepare return structure
+  emailList = mapply(function(header, body, attach, isSpam) {
+                       list(isSpam = isSpam, header = header, 
+                            body = body, attach = attach)
+                     },
+                     headerList, bodyList, attachInfo, 
+                     rep(isSpam, n), SIMPLIFY = FALSE )
+  names(emailList) = fileNames
+  
+  invisible(emailList)
+}
+
+#################################################################
+emailStruct = mapply(processAllEmail, fullDirNames,
+                     isSpam = rep( c(FALSE, TRUE), 3:2))      </code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): incomplete final line
+## found on './SpamAssassinMessages//messages/hard_ham/
+## 00228.0eaef7857bbbf3ebf5edbbdae2b30493'</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): incomplete final line
+## found on './SpamAssassinMessages//messages/hard_ham/
+## 0231.7c6cc716ce3f3bfad7130dd3c8d7b072'</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): incomplete final line
+## found on './SpamAssassinMessages//messages/hard_ham/
+## 0250.7c6cc716ce3f3bfad7130dd3c8d7b072'</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): incomplete final line found on './
+## SpamAssassinMessages//messages/spam/00136.faa39d8e816c70f23b4bb8758d8a74f0'</code></pre>
+<pre><code>## Warning in FUN(X[[i]], ...): incomplete final line found on './
+## SpamAssassinMessages//messages/spam/0143.260a940290dcb61f9327b224a368d4af'</code></pre>
+<pre class="r"><code>emailStruct = unlist(emailStruct, recursive = FALSE)
+
+sampleStruct = emailStruct[ indx ]
+
+save(emailStruct, file=&quot;emailXX.rda&quot;)
+
+header = sampleStruct[[1]]$header
+subject = header[&quot;Subject&quot;]
+els = strsplit(subject, &quot;&quot;)
+all(els %in% LETTERS)</code></pre>
+<pre><code>## [1] FALSE</code></pre>
+<pre class="r"><code>testSubject = c(&quot;DEAR MADAME&quot;, &quot;WINNER!&quot;, &quot;&quot;)
+
+els = strsplit(testSubject, &quot;&quot;)
+sapply(els, function(subject) all(subject %in% LETTERS))</code></pre>
+<pre><code>## [1] FALSE FALSE  TRUE</code></pre>
+<pre class="r"><code>gsub(&quot;[[:punct:] ]&quot;, &quot;&quot;, testSubject)</code></pre>
+<pre><code>## [1] &quot;DEARMADAME&quot; &quot;WINNER&quot;     &quot;&quot;</code></pre>
+<pre class="r"><code>gsub(&quot;[^[:alpha:]]&quot;, &quot;&quot;, testSubject)</code></pre>
+<pre><code>## [1] &quot;DEARMADAME&quot; &quot;WINNER&quot;     &quot;&quot;</code></pre>
+<pre class="r"><code>isYelling = function(msg) {
+  if ( &quot;Subject&quot; %in% names(msg$header) ) {
+     el = gsub(&quot;[^[:alpha:]]&quot;, &quot;&quot;, msg$header[&quot;Subject&quot;])
+     if (nchar(el) &gt; 0) 
+        nchar(gsub(&quot;[A-Z]&quot;, &quot;&quot;, el)) &lt; 1
+     else 
+        FALSE
+  } else 
+    NA
+}
+
+perCaps =
+function(msg)
+{
+  body = paste(msg$body, collapse = &quot;&quot;)
+
+       # Return NA if the body of the message is &quot;empty&quot;
+  if(length(body) == 0 || nchar(body) == 0) return(NA)
+
+       # Eliminate non-alpha characters
+  body = gsub(&quot;[^[:alpha:]]&quot;, &quot;&quot;, body)
+  capText = gsub(&quot;[^A-Z]&quot;, &quot;&quot;, body)
+  100 * nchar(capText)/nchar(body)
+}
+
+sapply(sampleStruct, perCaps)</code></pre>
+<pre><code>##   ./SpamAssassinMessages//messages/easy_ham1 
+##                                     4.451039 
+##   ./SpamAssassinMessages//messages/easy_ham2 
+##                                     7.491289 
+##   ./SpamAssassinMessages//messages/easy_ham3 
+##                                     7.436096 
+##   ./SpamAssassinMessages//messages/easy_ham4 
+##                                     5.090909 
+##   ./SpamAssassinMessages//messages/easy_ham5 
+##                                     6.116643 
+##  ./SpamAssassinMessages//messages/easy_ham15 
+##                                     7.732865 
+##  ./SpamAssassinMessages//messages/easy_ham27 
+##                                     5.523256 
+##  ./SpamAssassinMessages//messages/easy_ham68 
+##                                    10.059172 
+##  ./SpamAssassinMessages//messages/easy_ham69 
+##                                    10.885806 
+## ./SpamAssassinMessages//messages/easy_ham329 
+##                                     6.472492 
+## ./SpamAssassinMessages//messages/easy_ham404 
+##                                     9.597258 
+## ./SpamAssassinMessages//messages/easy_ham427 
+##                                    11.970075 
+## ./SpamAssassinMessages//messages/easy_ham516 
+##                                     9.233792 
+## ./SpamAssassinMessages//messages/easy_ham852 
+##                                     1.655629 
+## ./SpamAssassinMessages//messages/easy_ham971 
+##                                     6.417910</code></pre>
+<pre class="r"><code>funcList = list( 
+ isRe = function(msg) {
+       &quot;Subject&quot; %in% names(msg$header) &amp;&amp;
+         length(grep(&quot;^[ \t]*Re:&quot;, msg$header[[&quot;Subject&quot;]])) &gt; 0
+  },
+  numLines = function(msg) 
+                length(msg$body),
+  isYelling = function(msg) {
+    if ( &quot;Subject&quot; %in% names(msg$header) ) {
+       el = gsub(&quot;[^[:alpha:]]&quot;, &quot;&quot;, msg$header[&quot;Subject&quot;])
+       if (nchar(el) &gt; 0) 
+         nchar(gsub(&quot;[A-Z]&quot;, &quot;&quot;, el)) &lt; 1
+       else 
+         FALSE
+    }
+    else NA
+  },
+  perCaps = function(msg) {
+    body = paste(msg$body, collapse = &quot;&quot;)
+
+         # Return NA if the body of the message is &quot;empty&quot;
+    if(length(body) == 0 || nchar(body) == 0) return(NA)
+
+         # Eliminate non-alpha characters
+    body = gsub(&quot;[^[:alpha:]]&quot;, &quot;&quot;, body)
+    capText = gsub(&quot;[^A-Z]&quot;, &quot;&quot;, body)
+    100 * nchar(capText)/nchar(body)
+  }
+)
+
+lapply(funcList, function(func) 
+                   sapply(sampleStruct, function(msg) func(msg)))</code></pre>
+<pre><code>## $isRe
+##   ./SpamAssassinMessages//messages/easy_ham1 
+##                                         TRUE 
+##   ./SpamAssassinMessages//messages/easy_ham2 
+##                                        FALSE 
+##   ./SpamAssassinMessages//messages/easy_ham3 
+##                                        FALSE 
+##   ./SpamAssassinMessages//messages/easy_ham4 
+##                                        FALSE 
+##   ./SpamAssassinMessages//messages/easy_ham5 
+##                                         TRUE 
+##  ./SpamAssassinMessages//messages/easy_ham15 
+##                                         TRUE 
+##  ./SpamAssassinMessages//messages/easy_ham27 
+##                                         TRUE 
+##  ./SpamAssassinMessages//messages/easy_ham68 
+##                                        FALSE 
+##  ./SpamAssassinMessages//messages/easy_ham69 
+##                                         TRUE 
+## ./SpamAssassinMessages//messages/easy_ham329 
+##                                         TRUE 
+## ./SpamAssassinMessages//messages/easy_ham404 
+##                                         TRUE 
+## ./SpamAssassinMessages//messages/easy_ham427 
+##                                         TRUE 
+## ./SpamAssassinMessages//messages/easy_ham516 
+##                                         TRUE 
+## ./SpamAssassinMessages//messages/easy_ham852 
+##                                        FALSE 
+## ./SpamAssassinMessages//messages/easy_ham971 
+##                                         TRUE 
+## 
+## $numLines
+##   ./SpamAssassinMessages//messages/easy_ham1 
+##                                           50 
+##   ./SpamAssassinMessages//messages/easy_ham2 
+##                                           26 
+##   ./SpamAssassinMessages//messages/easy_ham3 
+##                                           38 
+##   ./SpamAssassinMessages//messages/easy_ham4 
+##                                           32 
+##   ./SpamAssassinMessages//messages/easy_ham5 
+##                                           31 
+##  ./SpamAssassinMessages//messages/easy_ham15 
+##                                           54 
+##  ./SpamAssassinMessages//messages/easy_ham27 
+##                                           35 
+##  ./SpamAssassinMessages//messages/easy_ham68 
+##                                           36 
+##  ./SpamAssassinMessages//messages/easy_ham69 
+##                                           65 
+## ./SpamAssassinMessages//messages/easy_ham329 
+##                                           58 
+## ./SpamAssassinMessages//messages/easy_ham404 
+##                                           70 
+## ./SpamAssassinMessages//messages/easy_ham427 
+##                                           31 
+## ./SpamAssassinMessages//messages/easy_ham516 
+##                                           38 
+## ./SpamAssassinMessages//messages/easy_ham852 
+##                                           28 
+## ./SpamAssassinMessages//messages/easy_ham971 
+##                                           34 
+## 
+## $isYelling
+##   ./SpamAssassinMessages//messages/easy_ham1.Subject 
+##                                                FALSE 
+##   ./SpamAssassinMessages//messages/easy_ham2.Subject 
+##                                                FALSE 
+##   ./SpamAssassinMessages//messages/easy_ham3.Subject 
+##                                                FALSE 
+##   ./SpamAssassinMessages//messages/easy_ham4.Subject 
+##                                                FALSE 
+##   ./SpamAssassinMessages//messages/easy_ham5.Subject 
+##                                                FALSE 
+##  ./SpamAssassinMessages//messages/easy_ham15.Subject 
+##                                                FALSE 
+##  ./SpamAssassinMessages//messages/easy_ham27.Subject 
+##                                                FALSE 
+##  ./SpamAssassinMessages//messages/easy_ham68.Subject 
+##                                                FALSE 
+##  ./SpamAssassinMessages//messages/easy_ham69.Subject 
+##                                                FALSE 
+## ./SpamAssassinMessages//messages/easy_ham329.Subject 
+##                                                FALSE 
+## ./SpamAssassinMessages//messages/easy_ham404.Subject 
+##                                                FALSE 
+## ./SpamAssassinMessages//messages/easy_ham427.Subject 
+##                                                FALSE 
+## ./SpamAssassinMessages//messages/easy_ham516.Subject 
+##                                                FALSE 
+## ./SpamAssassinMessages//messages/easy_ham852.Subject 
+##                                                FALSE 
+## ./SpamAssassinMessages//messages/easy_ham971.Subject 
+##                                                FALSE 
+## 
+## $perCaps
+##   ./SpamAssassinMessages//messages/easy_ham1 
+##                                     4.451039 
+##   ./SpamAssassinMessages//messages/easy_ham2 
+##                                     7.491289 
+##   ./SpamAssassinMessages//messages/easy_ham3 
+##                                     7.436096 
+##   ./SpamAssassinMessages//messages/easy_ham4 
+##                                     5.090909 
+##   ./SpamAssassinMessages//messages/easy_ham5 
+##                                     6.116643 
+##  ./SpamAssassinMessages//messages/easy_ham15 
+##                                     7.732865 
+##  ./SpamAssassinMessages//messages/easy_ham27 
+##                                     5.523256 
+##  ./SpamAssassinMessages//messages/easy_ham68 
+##                                    10.059172 
+##  ./SpamAssassinMessages//messages/easy_ham69 
+##                                    10.885806 
+## ./SpamAssassinMessages//messages/easy_ham329 
+##                                     6.472492 
+## ./SpamAssassinMessages//messages/easy_ham404 
+##                                     9.597258 
+## ./SpamAssassinMessages//messages/easy_ham427 
+##                                    11.970075 
+## ./SpamAssassinMessages//messages/easy_ham516 
+##                                     9.233792 
+## ./SpamAssassinMessages//messages/easy_ham852 
+##                                     1.655629 
+## ./SpamAssassinMessages//messages/easy_ham971 
+##                                     6.417910</code></pre>
+<pre class="r"><code>createDerivedDF =
+function(email = emailStruct, operations = funcList, 
+         verbose = FALSE)
+{
+  els = lapply(names(operations),
+               function(id) {
+                 if(verbose) print(id)
+                 e = operations[[id]]
+                 v = if(is.function(e)) 
+                        sapply(email, e)
+                      else 
+                        sapply(email, function(msg) eval(e))
+                 v
+         })
+
+   df = as.data.frame(els)
+   names(df) = names(operations)
+   invisible(df)
+}
+
+sampleDF = createDerivedDF(sampleStruct)
+head(sampleDF)</code></pre>
+<pre><code>##                                              isRe numLines isYelling
+## ./SpamAssassinMessages//messages/easy_ham1   TRUE       50     FALSE
+## ./SpamAssassinMessages//messages/easy_ham2  FALSE       26     FALSE
+## ./SpamAssassinMessages//messages/easy_ham3  FALSE       38     FALSE
+## ./SpamAssassinMessages//messages/easy_ham4  FALSE       32     FALSE
+## ./SpamAssassinMessages//messages/easy_ham5   TRUE       31     FALSE
+## ./SpamAssassinMessages//messages/easy_ham15  TRUE       54     FALSE
+##                                              perCaps
+## ./SpamAssassinMessages//messages/easy_ham1  4.451039
+## ./SpamAssassinMessages//messages/easy_ham2  7.491289
+## ./SpamAssassinMessages//messages/easy_ham3  7.436096
+## ./SpamAssassinMessages//messages/easy_ham4  5.090909
+## ./SpamAssassinMessages//messages/easy_ham5  6.116643
+## ./SpamAssassinMessages//messages/easy_ham15 7.732865</code></pre>
+<pre class="r"><code>funcList = list(
+  isSpam =
+    expression(msg$isSpam)
+  ,
+  isRe =
+    function(msg) {
+      # Can have a Fwd: Re:  ... but we are not looking for this here.
+      # We may want to look at In-Reply-To field.
+      &quot;Subject&quot; %in% names(msg$header) &amp;&amp; 
+        length(grep(&quot;^[ \t]*Re:&quot;, msg$header[[&quot;Subject&quot;]])) &gt; 0
+    }
+  ,
+  numLines =
+    function(msg) length(msg$body)
+  ,
+  bodyCharCt =
+    function(msg)
+      sum(nchar(msg$body))
+  ,
+  underscore =
+    function(msg) {
+      if(!&quot;Reply-To&quot; %in% names(msg$header))
+        return(FALSE)
+      
+      txt &lt;- msg$header[[&quot;Reply-To&quot;]]
+      length(grep(&quot;_&quot;, txt)) &gt; 0  &amp;&amp; 
+        length(grep(&quot;[0-9A-Za-z]+&quot;, txt)) &gt; 0
+    }
+  ,
+  subExcCt = 
+    function(msg) {
+      x = msg$header[&quot;Subject&quot;]
+      if(length(x) == 0 || sum(nchar(x)) == 0 || is.na(x))
+        return(NA)
+      
+      sum(nchar(gsub(&quot;[^!]&quot;,&quot;&quot;, x)))
+    }
+  ,
+  subQuesCt =
+    function(msg) {
+      x = msg$header[&quot;Subject&quot;]
+      if(length(x) == 0 || sum(nchar(x)) == 0 || is.na(x))
+        return(NA)
+      
+      sum(nchar(gsub(&quot;[^?]&quot;,&quot;&quot;, x)))
+    }
+  ,
+  numAtt = 
+    function(msg) {
+      if (is.null(msg$attach)) return(0)
+      else nrow(msg$attach)
+    }
+   
+  ,
+  priority =
+    function(msg) {
+      ans &lt;- FALSE
+      # Look for names X-Priority, Priority, X-Msmail-Priority
+      # Look for high any where in the value
+      ind = grep(&quot;priority&quot;, tolower(names(msg$header)))
+      if (length(ind) &gt; 0)  {
+        ans &lt;- length(grep(&quot;high&quot;, tolower(msg$header[ind]))) &gt;0
+      }
+      ans
+    }
+  ,
+  numRec =
+    function(msg) {
+      # unique or not.
+      els = getMessageRecipients(msg$header)
+      
+      if(length(els) == 0)
+        return(NA)
+      
+      # Split each line by &quot;,&quot;  and in each of these elements, look for
+      # the @ sign. This handles
+      tmp = sapply(strsplit(els, &quot;,&quot;), function(x) grep(&quot;@&quot;, x))
+      sum(sapply(tmp, length))
+    }
+  ,
+  perCaps =
+    function(msg)
+    {
+      body = paste(msg$body, collapse = &quot;&quot;)
+      
+      # Return NA if the body of the message is &quot;empty&quot;
+      if(length(body) == 0 || nchar(body) == 0) return(NA)
+      
+      # Eliminate non-alpha characters and empty lines 
+      body = gsub(&quot;[^[:alpha:]]&quot;, &quot;&quot;, body)
+      els = unlist(strsplit(body, &quot;&quot;))
+      ctCap = sum(els %in% LETTERS)
+      100 * ctCap / length(els)
+    }
+  ,
+  isInReplyTo =
+    function(msg)
+    {
+      &quot;In-Reply-To&quot; %in% names(msg$header)
+    }
+  ,
+  sortedRec =
+    function(msg)
+    {
+      ids = getMessageRecipients(msg$header)
+      all(sort(ids) == ids)
+    }
+  ,
+  subPunc =
+    function(msg)
+    {
+      if(&quot;Subject&quot; %in% names(msg$header)) {
+        el = gsub(&quot;['/.:@-]&quot;, &quot;&quot;, msg$header[&quot;Subject&quot;])
+        length(grep(&quot;[A-Za-z][[:punct:]]+[A-Za-z]&quot;, el)) &gt; 0
+      }
+      else
+        FALSE
+    },
+  hour =
+    function(msg)
+    {
+      date = msg$header[&quot;Date&quot;]
+      if ( is.null(date) ) return(NA)
+      # Need to handle that there may be only one digit in the hour
+      locate = regexpr(&quot;[0-2]?[0-9]:[0-5][0-9]:[0-5][0-9]&quot;, date)
+      
+      if (locate &lt; 0)
+        locate = regexpr(&quot;[0-2]?[0-9]:[0-5][0-9]&quot;, date)
+      if (locate &lt; 0) return(NA)
+      
+      hour = substring(date, locate, locate+1)
+      hour = as.numeric(gsub(&quot;:&quot;, &quot;&quot;, hour))
+      
+      locate = regexpr(&quot;PM&quot;, date)
+      if (locate &gt; 0) hour = hour + 12
+      
+      locate = regexpr(&quot;[+-][0-2][0-9]00&quot;, date)
+      if (locate &lt; 0) offset = 0
+      else offset = as.numeric(substring(date, locate, locate + 2))
+      (hour - offset) %% 24
+    }
+  ,
+  multipartText =
+    function(msg)
+    {
+      if (is.null(msg$attach)) return(FALSE)
+      numAtt = nrow(msg$attach)
+      
+      types = 
+        length(grep(&quot;(html|plain|text)&quot;, msg$attach$aType)) &gt; (numAtt/2)
+    }
+  ,
+  hasImages =
+    function(msg)
+    {
+      if (is.null(msg$attach)) return(FALSE)
+      
+      length(grep(&quot;^ *image&quot;, tolower(msg$attach$aType))) &gt; 0
+    }
+  ,
+  isPGPsigned =
+    function(msg)
+    {
+      if (is.null(msg$attach)) return(FALSE)
+      
+      length(grep(&quot;pgp&quot;, tolower(msg$attach$aType))) &gt; 0
+    },
+  perHTML =
+    function(msg)
+    {
+      if(! (&quot;Content-Type&quot; %in% names(msg$header))) return(0)
+      
+      el = tolower(msg$header[&quot;Content-Type&quot;]) 
+      if (length(grep(&quot;html&quot;, el)) == 0) return(0)
+      
+      els = gsub(&quot;[[:space:]]&quot;, &quot;&quot;, msg$body)
+      totchar = sum(nchar(els))
+      totplain = sum(nchar(gsub(&quot;&lt;[^&lt;]+&gt;&quot;, &quot;&quot;, els )))
+      100 * (totchar - totplain)/totchar
+    },
+  subSpamWords =
+    function(msg)
+    {
+      if(&quot;Subject&quot; %in% names(msg$header))
+        length(grep(paste(SpamCheckWords, collapse = &quot;|&quot;), 
+                    tolower(msg$header[&quot;Subject&quot;]))) &gt; 0
+      else
+        NA
+    }
+  ,
+  subBlanks =
+    function(msg)
+    {
+      if(&quot;Subject&quot; %in% names(msg$header)) {
+        x = msg$header[&quot;Subject&quot;]
+        # should we count blank subject line as 0 or 1 or NA?
+        if (nchar(x) == 1) return(0)
+        else 100 *(1 - (nchar(gsub(&quot;[[:blank:]]&quot;, &quot;&quot;, x))/nchar(x)))
+      } else NA
+    }
+  ,
+  noHost =
+    function(msg)
+    {
+      # Or use partial matching.
+      idx = pmatch(&quot;Message-&quot;, names(msg$header))
+      
+      if(is.na(idx)) return(NA)
+      
+      tmp = msg$header[idx]
+      return(length(grep(&quot;.*@[^[:space:]]+&quot;, tmp)) ==  0)
+    }
+  ,
+  numEnd =
+    function(msg)
+    {
+      # If we just do a grep(&quot;[0-9]@&quot;,  )
+      # we get matches on messages that have a From something like
+      # &quot; \&quot;marty66@aol.com\&quot; &lt;synjan@ecis.com&gt;&quot;
+      # and the marty66 is the &quot;user's name&quot; not the login
+      # So we can be more precise if we want.
+      x = names(msg$header)
+      if ( !( &quot;From&quot; %in% x) ) return(NA)
+      login = gsub(&quot;^.*&lt;&quot;, &quot;&quot;, msg$header[&quot;From&quot;])
+      if ( is.null(login) ) 
+        login = gsub(&quot;^.*&lt;&quot;, &quot;&quot;, msg$header[&quot;X-From&quot;])
+      if ( is.null(login) ) return(NA)
+      login = strsplit(login, &quot;@&quot;)[[1]][1]
+      length(grep(&quot;[0-9]+$&quot;, login)) &gt; 0
+    },
+  isYelling =
+    function(msg)
+    {
+      if ( &quot;Subject&quot; %in% names(msg$header) ) {
+        el = gsub(&quot;[^[:alpha:]]&quot;, &quot;&quot;, msg$header[&quot;Subject&quot;])
+        if (nchar(el) &gt; 0) nchar(gsub(&quot;[A-Z]&quot;, &quot;&quot;, el)) &lt; 1
+        else FALSE
+      }
+      else
+        NA
+    },
+  forwards =
+    function(msg)
+    {
+      x = msg$body
+      if(length(x) == 0 || sum(nchar(x)) == 0)
+        return(NA)
+      
+      ans = length(grep(&quot;^[[:space:]]*&gt;&quot;, x))
+      100 * ans / length(x)
+    },
+  isOrigMsg =
+    function(msg)
+    {
+      x = msg$body
+      if(length(x) == 0) return(NA)
+      
+      length(grep(&quot;^[^[:alpha:]]*original[^[:alpha:]]+message[^[:alpha:]]*$&quot;, 
+                  tolower(x) ) ) &gt; 0
+    },
+  isDear =
+    function(msg)
+    {
+      x = msg$body
+      if(length(x) == 0) return(NA)
+      
+      length(grep(&quot;^[[:blank:]]*dear +(sir|madam)\\&gt;&quot;, 
+                  tolower(x))) &gt; 0
+    },
+  isWrote =
+    function(msg)
+    {
+      x = msg$body
+      if(length(x) == 0) return(NA)
+      
+      length(grep(&quot;(wrote|schrieb|ecrit|escribe):&quot;, tolower(x) )) &gt; 0
+    },
+  avgWordLen =
+    function(msg)
+    {
+      txt = paste(msg$body, collapse = &quot; &quot;)
+      if(length(txt) == 0 || sum(nchar(txt)) == 0) return(0)
+      
+      txt = gsub(&quot;[^[:alpha:]]&quot;, &quot; &quot;, txt)
+      words = unlist(strsplit(txt, &quot;[[:blank:]]+&quot;))
+      wordLens = nchar(words)
+      mean(wordLens[ wordLens &gt; 0 ])
+    }
+  ,
+  numDlr =
+    function(msg)
+    {
+      x = paste(msg$body, collapse = &quot;&quot;)
+      if(length(x) == 0 || sum(nchar(x)) == 0)
+        return(NA)
+      
+      nchar(gsub(&quot;[^$]&quot;,&quot;&quot;, x))
+    }
+)
+###############################################################
+SpamCheckWords =
+  c(&quot;viagra&quot;, &quot;pounds&quot;, &quot;free&quot;, &quot;weight&quot;, &quot;guarantee&quot;, &quot;million&quot;, 
+    &quot;dollars&quot;, &quot;credit&quot;, &quot;risk&quot;, &quot;prescription&quot;, &quot;generic&quot;, &quot;drug&quot;,
+    &quot;financial&quot;, &quot;save&quot;, &quot;dollar&quot;, &quot;erotic&quot;, &quot;million&quot;, &quot;barrister&quot;,
+    &quot;beneficiary&quot;, &quot;easy&quot;, 
+    &quot;money back&quot;, &quot;money&quot;, &quot;credit card&quot;)
+
+
+getMessageRecipients =
+  function(header)
+  {
+    c(if(&quot;To&quot; %in% names(header))  header[[&quot;To&quot;]] else character(0),
+      if(&quot;Cc&quot; %in% names(header))  header[[&quot;Cc&quot;]] else character(0),
+      if(&quot;Bcc&quot; %in% names(header)) header[[&quot;Bcc&quot;]] else character(0)
+    )
+  }
+
+emailDF = createDerivedDF(emailStruct)
+dim(emailDF)</code></pre>
+<pre><code>## [1] 9348   30</code></pre>
+<pre class="r"><code>dim(emailDF)</code></pre>
+<pre><code>## [1] 9348   30</code></pre>
+<pre class="r"><code>perCaps2 =
+function(msg)
+{
+  body = paste(msg$body, collapse = &quot;&quot;)
+
+       # Return NA if the body of the message is &quot;empty&quot;
+  if(length(body) == 0 || nchar(body) == 0) return(NA)
+
+       # Eliminate non-alpha characters and empty lines 
+  body = gsub(&quot;[^[:alpha:]]&quot;, &quot;&quot;, body)
+  els = unlist(strsplit(body, &quot;&quot;))
+  ctCap = sum(els %in% LETTERS)
+  100 * ctCap / length(els)
+}
+
+pC = sapply(emailStruct, perCaps)
+pC2 = sapply(emailStruct, perCaps2)
+identical(pC, pC2)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>indNA = which(is.na(emailDF$subExcCt))
+
+indNoSubject = which(sapply(emailStruct, 
+                            function(msg) 
+                              !(&quot;Subject&quot; %in% names(msg$header))))
+
+all(indNA == indNoSubject)</code></pre>
+<pre><code>## Warning in indNA == indNoSubject: longer object length is not a multiple of
+## shorter object length</code></pre>
+<pre><code>## [1] FALSE</code></pre>
+<pre class="r"><code>all(emailDF$bodyCharCt &gt; emailDF$numLines)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<pre class="r"><code>x.at = c(1,10,100,1000,10000,100000)
+y.at = c(1, 5, 10, 50, 100, 500, 5000)
+nL = 1 + emailDF$numLines
+nC = 1 + emailDF$bodyCharCt</code></pre>
+<pre class="r"><code>library(rpart)</code></pre>
+<pre><code>## Warning: package 'rpart' was built under R version 3.5.2</code></pre>
+<pre class="r"><code>setupRpart = function(data) {
+  logicalVars = which(sapply(data, is.logical))
+  facVars = lapply(data[ , logicalVars], 
+                   function(x) {
+                      x = as.factor(x)
+                      levels(x) = c(&quot;F&quot;, &quot;T&quot;)
+                      x
+                   })
+  cbind(facVars, data[ , - logicalVars])
+}
+
+emailDFrp = setupRpart(emailDF)
+
+
+
+##################################################################
+set.seed(418910)
+testSpamIdx = sample(numSpam, size = floor(numSpam/3))
+testHamIdx = sample(numHam, size = floor(numHam/3))
+
+testDF = 
+  rbind( emailDFrp[ emailDFrp$isSpam == &quot;T&quot;, ][testSpamIdx, ],
+         emailDFrp[emailDFrp$isSpam == &quot;F&quot;, ][testHamIdx, ] )
+trainDF =
+  rbind( emailDFrp[emailDFrp$isSpam == &quot;T&quot;, ][-testSpamIdx, ], 
+         emailDFrp[emailDFrp$isSpam == &quot;F&quot;, ][-testHamIdx, ])
+
+rpartFit = rpart(isSpam ~ ., data = trainDF, method = &quot;class&quot;)
+
+
+library(rpart.plot)</code></pre>
+<pre><code>## Warning: package 'rpart.plot' was built under R version 3.5.2</code></pre>
+<pre class="r"><code>prp(rpartFit, extra = 1)
+
+library(rpart.plot)
+#pdf(&quot;SPAM_rpartTree.pdf&quot;, width = 7, height = 7)
+
+prp(rpartFit, extra = 1)</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
+<pre class="r"><code>#dev.off()
+
+predictions = predict(rpartFit, 
+       newdata = testDF[, names(testDF) != &quot;isSpam&quot;],
+       type = &quot;class&quot;)
+ 
+predsForHam = predictions[ testDF$isSpam == &quot;F&quot; ]
+summary(predsForHam)</code></pre>
+<pre><code>##    F    T 
+## 2192  125</code></pre>
+<pre class="r"><code>sum(predsForHam == &quot;T&quot;) / length(predsForHam)</code></pre>
+<pre><code>## [1] 0.05394907</code></pre>
+<pre class="r"><code>predsForSpam = predictions[ testDF$isSpam == &quot;T&quot; ]
+sum(predsForSpam == &quot;F&quot;) / length(predsForSpam)</code></pre>
+<pre><code>## [1] 0.1564456</code></pre>
+<pre class="r"><code>complexityVals = c(seq(0.00001, 0.0001, length=19),
+                   seq(0.0001, 0.001, length=19), 
+                   seq(0.001, 0.005, length=9),
+                   seq(0.005, 0.01, length=9))</code></pre>
+<pre class="r"><code>fits = lapply(complexityVals, function(x) {
+         rpartObj = rpart(isSpam ~ ., data = trainDF,
+                          method=&quot;class&quot;, 
+                          control = rpart.control(cp=x) )
+           
+         predict(rpartObj, 
+                 newdata = testDF[ , names(testDF) != &quot;isSpam&quot;],
+                 type = &quot;class&quot;)
+        })
+
+spam = testDF$isSpam == &quot;T&quot;
+numSpam = sum(spam)
+numHam = sum(!spam)
+errs = sapply(fits, function(preds) {
+                      typeI = sum(preds[ !spam ] == &quot;T&quot;) / numHam
+                      typeII = sum(preds[ spam ] == &quot;F&quot;) / numSpam
+                      c(typeI = typeI, typeII = typeII)
+                     })
+
+library(RColorBrewer)
+cols = brewer.pal(9, &quot;Set1&quot;)[c(3, 4, 5)]
+plot(errs[1,] ~ complexityVals, type=&quot;l&quot;, col=cols[2], 
+     lwd = 2, ylim = c(0,0.2), xlim = c(0,0.01), 
+     ylab=&quot;Error&quot;, xlab=&quot;complexity parameter values&quot;)
+points(errs[2,] ~ complexityVals, type=&quot;l&quot;, col=cols[1], lwd = 2)
+
+text(x =c(0.003, 0.0035), y = c(0.12, 0.05), 
+     labels=c(&quot;Type II Error&quot;, &quot;Type I Error&quot;))
+
+minI = which(errs[1,] == min(errs[1,]))[1]
+abline(v = complexityVals[minI], col =&quot;grey&quot;, lty =3, lwd=2)
+
+text(0.0007, errs[1, minI]+0.01, 
+     formatC(errs[1, minI], digits = 2))
+text(0.0007, errs[2, minI]+0.01, 
+     formatC(errs[2, minI], digits = 3))</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
+<pre class="r"><code>save(emailDFrp,file=&quot;data.Rda&quot;)</code></pre>
 </div>
 <div id="results" class="section level3">
 <h3>Results</h3>
