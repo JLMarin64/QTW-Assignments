@@ -11,19 +11,28 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Introduction
+### Introduction {.tabset}
 For this case study, we will be evaluating classified emails from SpamAssasin (http://spamassassin.apache.org) and attempting to create spam filters. We chose to answer question 19 from the Nolan and Lang textbook.
-<br>
 
-#### Question 19 (p.168 from textbook)
-Consider the other parameters that can be used to control the recursive partitioning process. Read the documentation for them in the `rpart.control()` documentation. Also, carry out an Internet search for more information on how to tweak the `rpart()` tuning parameters. Experiment with values for these parameters. Do the trees that result make sense with your understanding of how the parameters are used? Can you improve the prediction using them?
+Question 19 states the following:
+
+  Consider the other parameters that can be used to control the recursive partitioning process. Read the               documentation for them in the `rpart.control()` documentation. Also, carry out an Internet search for more 
+  information on how to tweak the `rpart()` tuning parameters. Experiment with values for these parameters. Do the     trees that result make sense with your understanding of how the parameters are used? Can you improve the 
+  prediction using them?
+
+
 
 ### Background
 The rpart documentation available on https://cran.r-project.org/web/packages/rpart/index.html states that the package is for "recursive partitioning for classification, regression and survival trees." [2]
 
 ### Methods
-From page 110 in the textbook, we used R to check the directory of the `SpamAssassinMessages` directory. We list the folder names within the directory and list the file names within the `spam_2` folder. The `length()` function tells us that there are 9,353 messages altogether from the different directories. We also printed the count of messages within each folder. 
-```{r code1, echo = TRUE , include = TRUE}
+We have used the code provided and downloaded the spam and ham messages while placing it in a directory that will allow the provided code to run.[1] The provided code creates features and stores these message features in a more readable format such as a dataframe so that it can be viewed for analysis and decision tree processing.  After running the code provided for data prep, we ran the `rpart()` function as provided by the code and noted the Type 1 and Type 2 errors as seen below in figure 1.   
+
+Once we noted the Type 1 and Type 2 errors, we ran the `rpart()` function again as is to make sure we did not have a reproducibility issue as setting the seed sometimes does not always working when taking samples.  We then added complexity parameter and the min bucket parameter to the code.  The complexity parameter's function is to save processing time by pruning off splits that are not useful.  Here the user can set a split which does not improve the fit by the cp value will be pruned off by cross validation. [2]  The minbucket parameter was also adjusted and it represents the mininmum number of observations in the leaf node.  [2]
+
+
+
+```{r provided_code, echo = FALSE , include = FALSE}
 # set cho's wd
 #setwd("Documents/4-Spring19/QTW/QTW-Assignments/Assignment 3")
 #spamPath = "/Users/nolan/RPackages/RSpamData"spamPath = "."
@@ -54,11 +63,6 @@ sapply(paste(spamPath, "messages", dirNames,
 fullDirNames = paste(spamPath, "messages", dirNames, 
                      sep = .Platform$file.sep)
 
-```
-
-In the code below, we obtain the full path of the files in the first directory `easy_ham`, and read the first message in the `easy_ham` folder. From the textbook, 15 ham message files were selected by manual inspection and read into R (see `indx` varible). Then, we split the header from the body of the message using a custom function from the textbook. 
-
-```{r code2, echo = TRUE , include = TRUE}
 # obtain full bnames of files within first directory, easy_ham 
 fileNames = list.files(fullDirNames[1], full.names = TRUE)
 fileNames[1]
@@ -101,9 +105,7 @@ splitMessage = function(msg) {
 
 # apply function
 sampleSplit = lapply(sampleEmail, splitMessage)
-```
 
-```{r code3, echo = TRUE , include = TRUE}
 # view first message in sample
 header = sampleSplit[[1]]$header
 # locate Content-Type key in header
@@ -146,8 +148,7 @@ sub(".*boundary=\"(.*)\";.*", "\\1", header[boundaryIdx])
 header2 = headerList[[9]]
 boundaryIdx2 = grep("boundary=", header2)
 header2[boundaryIdx2]
-```
-```{r code4, echo = TRUE , include = TRUE}
+
 sub('.*boundary="(.*)";.*', "\\1", header2[boundaryIdx2])
 
 boundary2 = gsub('"', "", header2[boundaryIdx2])
@@ -183,8 +184,7 @@ tail(msg)
 
 msg = c(msg, body[ (eStringLoc + 1) : length(body) ])
 tail(msg)
-```
-```{r code5, echo=TRUE, include=TRUE}
+
 dropAttach = function(body, boundary){
   
   bString = paste("--", boundary, sep = "")
@@ -222,9 +222,6 @@ SWords = unlist(strsplit(cleanSW, "[[:blank:]]+"))
 SWords = SWords[ nchar(SWords) > 1 ]
 stopWords = unique(SWords)
 
-```
-
-```{r code6, echo=TRUE, include="TRUE"}
 words = unlist(strsplit(cleanMsg, "[[:blank:]]+"))
 
 words = words[ nchar(words) > 1 ]
@@ -291,10 +288,6 @@ processAllWords = function(dirName, stopWords)
   invisible(msgWordsList)
 }
 
-```
-
-```{r code7, echo=TRUE, include=TRUE}
-
 msgWordsList = lapply(fullDirNames, processAllWords, stopWords = stopWords) 
 
 numMsgs = sapply(msgWordsList, length)
@@ -335,8 +328,7 @@ names(spamWordCounts) = bow
 tmp = lapply(trainMsgWords[trainIsSpam], unique)
 tt = table( unlist(tmp) )
 spamWordCounts[ names(tt) ] = tt
-```
-```{r code 8, echo=TRUE, include=TRUE}
+
 computeFreqs =
 function(wordsList, spam, bow = unique(unlist(wordsList)))
 {
@@ -404,9 +396,7 @@ computeMsgLLR = function(words, freqTable)
 testLLR = sapply(testMsgWords, computeMsgLLR, trainTable)
 
 tapply(testLLR, testIsSpam, summary)
-```
 
-```{r code9, echo=TRUE, include=TRUE}
 typeIErrorRate = 
 function(tau, llrVals, spam)
 {
@@ -503,10 +493,6 @@ processHeader = function(header)
   return(headerVec)
 }
 
-
-```
-
-```{r code10, echo=TRUE, include=TRUE}
 headerList = lapply(sampleSplit, 
                     function(msg) {
                       processHeader(msg$header)} )
@@ -1165,7 +1151,11 @@ nC = 1 + emailDF$bodyCharCt
 
 ```
 
-```{r rpart, echo=TRUE, include=TRUE}
+
+
+Figure 1. 
+
+```{r rpart, echo=FALSE, include=TRUE}
 #load(file="data.Rda")
 
 library(rpart)
@@ -1228,7 +1218,11 @@ complexityVals = c(seq(0.00001, 0.0001, length=19),
                    seq(0.005, 0.01, length=9))
 
 ```
-```{r codefitgraph, echo=TRUE, include=TRUE}
+We can see above from Figure 1 that the Type 1 error is .024 and the Type 2 error is .293 without any additional parameters. 
+
+Figure 2.
+
+```{r codefitgraph, echo=FALSE, include=TRUE}
 
 fits = lapply(complexityVals, function(x) {
          rpartObj = rpart(isSpam ~ ., data = trainDF,
@@ -1251,6 +1245,7 @@ errs = sapply(fits, function(preds) {
 
 library(RColorBrewer)
 cols = brewer.pal(9, "Set1")[c(3, 4, 5)]
+
 plot(errs[1,] ~ complexityVals, type="l", col=cols[2], 
      lwd = 2, ylim = c(0,0.2), xlim = c(0,0.01), 
      ylab="Error", xlab="complexity parameter values")
@@ -1269,7 +1264,12 @@ text(0.0007, errs[2, minI]+0.01,
 
 save(emailDFrp,file="data.Rda")
 ```
-```{r parms, echo=TRUE, include=TRUE}
+
+In figure 2 above, we see that the Type 2 error decreases with lower complexity parameter values. 
+
+Figure 3.
+
+```{r parms, echo=FALSE, include=TRUE}
 
 #load(file="data.Rda")
 
@@ -1324,7 +1324,11 @@ prp(rpartFit, extra = 1)
 predictions = predict(rpartFit, 
        newdata = testDF[, names(testDF) != "isSpam"],
        type = "class")
- 
+
+```
+
+
+```{r type_error, echo = FALSE, include = TRUE} 
 predsForHam = predictions[ testDF$isSpam == "F" ]
 summary(predsForHam)
 
@@ -1376,10 +1380,10 @@ text(0.0007, errs[2, minI]+0.01,
      formatC(errs[2, minI], digits = 3))
 
 ```
+
 ### Results
 
-
-### Conclusions/Discussions
+After lowering the complexity parameter, we found that we received more branches.  When adjusting the minbucket, we did not see a lot of effect on the results unless we had a really low complexity parameter.  We noticed increased gains in the model when adding a complexity parameter of .016 and a minbucket of 20.  
 
 
 ### References
@@ -1387,3 +1391,7 @@ text(0.0007, errs[2, minI]+0.01,
 2. Terry Therneau and Beth Atkinson (2018). rpart: Recursive Partitioning and
   Regression Trees. R package version 4.1-13.
   https://CRAN.R-project.org/package=rpart
+  
+  
+### Code Appendix
+
