@@ -1166,7 +1166,7 @@ nC = 1 + emailDF$bodyCharCt
 ```
 
 ```{r rpart, echo=TRUE, include=TRUE}
-load(file="data.Rda")
+#load(file="data.Rda")
 
 library(rpart)
 
@@ -1268,6 +1268,113 @@ text(0.0007, errs[2, minI]+0.01,
      formatC(errs[2, minI], digits = 3))
 
 save(emailDFrp,file="data.Rda")
+```
+```{r parms, echo=TRUE, include=TRUE}
+
+#load(file="data.Rda")
+
+#library(rpart)
+
+#setupRpart = function(data) {
+ # logicalVars = which(sapply(data, is.logical))
+ # facVars = lapply(data[ , logicalVars], 
+  #                 function(x) {
+  #                    x = as.factor(x)
+  #                    levels(x) = c("F", "T")
+  #                    x
+  #                 })
+  #cbind(facVars, data[ , - logicalVars])
+#}
+
+#emailDFrp = setupRpart(emailDF)
+
+
+
+##################################################################
+set.seed(418910)
+#testSpamIdx = sample(numSpam, size = floor(numSpam/3))
+#testHamIdx = sample(numHam, size = floor(numHam/3))
+
+#testDF = 
+#  rbind( emailDFrp[ emailDFrp$isSpam == "T", ][testSpamIdx, ],
+#         emailDFrp[emailDFrp$isSpam == "F", ][testHamIdx, ] )
+#trainDF =
+#  rbind( emailDFrp[emailDFrp$isSpam == "T", ][-testSpamIdx, ], 
+#         emailDFrp[emailDFrp$isSpam == "F", ][-testHamIdx, ])
+
+rpartFit = rpart(isSpam ~ ., data = trainDF, method = "class",control = rpart.control(cp=0.016, minbucket = 20 , xval = 5))
+#rpartFit = rpart(isSpam ~ ., data = trainDF, method = "class",control = rpart.control(cp=0.0015, minbucket = 20 , xval = 5))
+#rpartFit = rpart(isSpam ~ ., data = trainDF, method = "class",control = rpart.control(cp=0.0003))
+
+#rpartFit = rpart(isSpam ~ ., data = trainDF, method = "class",control = rpart.control(cp=0.0015, minbucket = 5))
+
+rpartFit2 = rpart(isSpam ~ ., data = trainDF, method = "class")
+plotcp(rpartFit2)
+
+library(rpart.plot)
+
+prp(rpartFit, extra = 1)
+
+library(rpart.plot)
+#pdf("SPAM_rpartTree.pdf", width = 7, height = 7)
+
+prp(rpartFit, extra = 1)
+#dev.off()
+
+predictions = predict(rpartFit, 
+       newdata = testDF[, names(testDF) != "isSpam"],
+       type = "class")
+ 
+predsForHam = predictions[ testDF$isSpam == "F" ]
+summary(predsForHam)
+
+sum(predsForHam == "T") / length(predsForHam)
+
+predsForSpam = predictions[ testDF$isSpam == "T" ]
+sum(predsForSpam == "F") / length(predsForSpam)
+
+complexityVals = c(seq(0.00001, 0.0001, length=19),
+                   seq(0.0001, 0.001, length=19), 
+                   seq(0.001, 0.005, length=9),
+                   seq(0.005, 0.04, length=9))
+
+fits = lapply(complexityVals, function(x) {
+         rpartObj = rpart(isSpam ~ ., data = trainDF,
+                          method="class",
+                          control = rpart.control(cp=x) )
+           
+         predict(rpartObj, 
+                 newdata = testDF[ , names(testDF) != "isSpam"],
+                 type = "class")
+        })
+
+spam = testDF$isSpam == "T"
+numSpam = sum(spam)
+numHam = sum(!spam)
+errs = sapply(fits, function(preds) {
+                      typeI = sum(preds[ !spam ] == "T") / numHam
+                      typeII = sum(preds[ spam ] == "F") / numSpam
+                      c(typeI = typeI, typeII = typeII)
+                     })
+
+library(RColorBrewer)
+cols = brewer.pal(9, "Set1")[c(3, 4, 5)]
+plot(errs[1,] ~ complexityVals, type="l", col=cols[2], 
+     lwd = 2, ylim = c(0,0.5), xlim = c(0,0.04), 
+     ylab="Error", xlab="complexity parameter values")
+points(errs[2,] ~ complexityVals, type="l", col=cols[1], lwd = 2)
+
+text(x =c(0.003, 0.0035), y = c(0.12, 0.05), 
+     labels=c("Type II Error", "Type I Error"))
+
+minI = which(errs[1,] == min(errs[1,]))[1]
+abline(v = complexityVals[minI], col ="grey", lty =3, lwd=2)
+
+text(0.0007, errs[1, minI]+0.01, 
+     formatC(errs[1, minI], digits = 2))
+text(0.0007, errs[2, minI]+0.01, 
+     formatC(errs[2, minI], digits = 3))
+
 ```
 ### Results
 
